@@ -1,0 +1,14 @@
+{
+  "action": "closed",
+  "head": {
+    "user": {
+      "login": "act"
+    }
+  },
+  "pull_request": {
+    "base": {
+      "ref": "develop"
+    },
+    "merged": true
+  }
+}
