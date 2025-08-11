@@ -13,7 +13,7 @@ import NIOHTTP1
 import NIOPosix
 import NIOSSL
 import OSLog
-import QuantumLeap
+import SwiftyLogger
 
 final class ConnectHandler: ChannelInboundHandler {
     // MARK: Internal
@@ -69,14 +69,14 @@ final class ConnectHandler: ChannelInboundHandler {
                                             case .success:
                                                 self.state = .established
                                             case .failure(let failure):
-                                                Logger.error(failure)
+                                                SwiftyLogger.error(failure)
                                                 context.close(promise: nil)
                                             }
                                         }
                                 }
 
                             case .failure(let failure):
-                                Logger.error(failure.localizedDescription)
+                                SwiftyLogger.error(failure.localizedDescription)
                                 // Send 404 to downstream.
                                 let headers = HTTPHeaders([("Content-Length", "0")])
                                 let head = HTTPResponseHead(

@@ -7,7 +7,7 @@
 
 import Foundation
 import NetworkExtension
-import QuantumLeap
+import SwiftyLogger
 
 public enum MITM {
     public func createTunnelNetworkSettings(options: [String: NSObject]? = nil) throws -> NETunnelNetworkSettings {
@@ -31,7 +31,7 @@ public enum MITM {
               let data: Data = options[NEVPNConnectionStartOptionPassword] as? Data
         else {
             NSLog("No options provided or missing password data")
-            Logger.error("No options provided or missing password data")
+            SwiftyLogger.error("No options provided or missing password data")
             return
         }
     }

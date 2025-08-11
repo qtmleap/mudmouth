@@ -17,7 +17,7 @@ import SwiftASN1
 import UniformTypeIdentifiers
 import NIO
 import NIOHTTP1
-import QuantumLeap
+import SwiftyLogger
 import NIOSSL
 
 @MainActor
@@ -43,20 +43,20 @@ public final class Mudmouth {
     
     /// <#Description#>
     var isInstalled: Bool {
-        Logger.debug("Checking VPN is installed")
+        SwiftyLogger.debug("Checking VPN is installed")
         return manager != nil
     }
     
     var isNSOInstalled: Bool {
-        Logger.debug("Checking NSO is installed")
-        Logger.debug("URL Schema: \(UIApplication.shared.canOpenURL(URL(string: "com.nintendo.znca://")!))")
-        Logger.debug("URL Schema: \(UIApplication.shared.canOpenURL(URL(string: "npf71b963c1b7b6d119://")!))")
+        SwiftyLogger.debug("Checking NSO is installed")
+        SwiftyLogger.debug("URL Schema: \(UIApplication.shared.canOpenURL(URL(string: "com.nintendo.znca://")!))")
+        SwiftyLogger.debug("URL Schema: \(UIApplication.shared.canOpenURL(URL(string: "npf71b963c1b7b6d119://")!))")
         return UIApplication.shared.canOpenURL(URL(string: "com.nintendo.znca://")!)
     }
     
     /// 証明書がインストールされているかどうか
     var isVerified: Bool {
-        Logger.debug("Checking certificate installation")
+        SwiftyLogger.debug("Checking certificate installation")
         let der = certificate.derRepresentation
         let secCertificate = SecCertificateCreateWithData(nil, der as CFData)!
         let policy = SecPolicyCreateBasicX509()
@@ -71,7 +71,7 @@ public final class Mudmouth {
     
     /// 証明書が信頼されているかどうか
     var isTrusted: Bool {
-        Logger.debug("Checking certificate trust")
+        SwiftyLogger.debug("Checking certificate trust")
         let url: URL = .init(unsafeString: "https://mudmouth.local")
         let keyPair = generateSiteKeyPair(url: url)
         let der = keyPair.certificate.derRepresentation
@@ -96,14 +96,14 @@ public final class Mudmouth {
         configuration.providerBundleIdentifier = bundleIdentifier
         configuration.serverAddress = "Interceptor"
         manager.protocolConfiguration = configuration
-        Logger.debug(configuration)
+        SwiftyLogger.debug(configuration)
         try await manager.saveToPreferences()
     }
     
     /// 初期設定
     @objc
     private func configure() {
-        Logger.debug("Interceptor: Configuring VPN Manager")
+        SwiftyLogger.debug("Interceptor: Configuring VPN Manager")
         NETunnelProviderManager.loadAllFromPreferences(completionHandler: { managers, error in
             self.manager = managers?.first
         })
@@ -111,11 +111,11 @@ public final class Mudmouth {
     
     /// VPNトンネルを開始する
     public func startVPNTunnel() async throws {
-        Logger.debug("Interceptor: Starting VPN Tunnel")
+        SwiftyLogger.debug("Interceptor: Starting VPN Tunnel")
         // 一応マネージャーがあるかをチェックする
         guard let manager = try await NETunnelProviderManager.loadAllFromPreferences().first
         else {
-            Logger.error("Interceptor: No VPN manager found")
+            SwiftyLogger.error("Interceptor: No VPN manager found")
             return
         }
         let keyPair: KeyPair = generateSiteKeyPair(url: URL(unsafeString: "https://api.lp1.av5ja.srv.nintendo.net/api/bullet_tokens"))
@@ -136,7 +136,7 @@ public final class Mudmouth {
     /// アプリが復帰したときにVPNを無効化する
     @objc
     public func stopVPNTunnel() {
-        Logger.debug("Interceptor: Stopping VPN Tunnel")
+        SwiftyLogger.debug("Interceptor: Stopping VPN Tunnel")
         /// 非同期関数はobjcで定義できないのでTaskでラップする
         Task(priority: .background, operation: {
             if let manager = try await NETunnelProviderManager.loadAllFromPreferences().first {

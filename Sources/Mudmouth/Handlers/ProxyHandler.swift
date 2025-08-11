@@ -13,7 +13,7 @@ import NIOHTTP1
 import NIOPosix
 import NIOSSL
 import OSLog
-import QuantumLeap
+import SwiftyLogger
 import UserNotifications
 
 final class ProxyHandler: NotificationHandler, ChannelDuplexHandler {
@@ -55,7 +55,7 @@ final class ProxyHandler: NotificationHandler, ChannelDuplexHandler {
 
         case .end:
             if let request: HTTP.Request = requests.popFirst() {
-                Logger.debug(request)
+                SwiftyLogger.debug(request)
                 let headers = request.headers.base64EncodedString
                 let body = request.body.base64EncodedString
                 Task(priority: .background, operation: {

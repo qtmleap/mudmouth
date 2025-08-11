@@ -12,7 +12,7 @@ import X509
 import NIOCore
 import NIOPosix
 import NIOHTTP1
-import QuantumLeap
+import SwiftyLogger
 
 @Observable
 public class X509Proxy: ChannelInboundHandler, @unchecked Sendable {
@@ -28,7 +28,7 @@ public class X509Proxy: ChannelInboundHandler, @unchecked Sendable {
     
     /// X509証明書インストール用のサーバーの起動
     func start() throws {
-        Logger.debug("Starting X509Proxy on port \(port)")
+        SwiftyLogger.debug("Starting X509Proxy on port \(port)")
 //        let privateKey: PrivateKey = try keychain.getPrivateKey()
         let certificate: Certificate = try keychain.getCertificate()
         let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
@@ -51,7 +51,7 @@ public class X509Proxy: ChannelInboundHandler, @unchecked Sendable {
                     break
                 case .failure(let failure):
                     NSLog("Interceptor: Failed to bind server: \(failure)")
-                    Logger.error(failure)
+                    SwiftyLogger.error(failure)
                     break
                 }
             }
@@ -60,7 +60,7 @@ public class X509Proxy: ChannelInboundHandler, @unchecked Sendable {
     /// X509証明書インストール用のサーバーの停止
     /// FIXME: 現状は停止しない
     func stop() throws {
-        Logger.debug("Stopping X509Proxy on port \(port)")
+        SwiftyLogger.debug("Stopping X509Proxy on port \(port)")
         // Implement stopping logic if necessary
         // This might involve shutting down the event loop group or closing channels
     }

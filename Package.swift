@@ -17,11 +17,10 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-certificates.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),
         .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.0.0"),
+        .package(url: "https://github.com/qtmleap/swifty-logger.git", from: "2.1.1"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
         .package(url: "https://github.com/stleamist/BetterSafariView.git", from: "2.4.2"),
-        .package(url: "https://github.com/qtmleap/QuantumLeap.git", from: "0.0.4"),
         .package(url: "https://github.com/1024jp/GzipSwift.git", from: "6.1.0"),
-        .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", from: "2.1.1"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -33,12 +32,11 @@ let package = Package(
                 .product(name: "NIOCore", package: "swift-nio"),
                 .product(name: "NIOPosix", package: "swift-nio"),
                 .product(name: "NIOHTTP1", package: "swift-nio"),
+                .product(name: "SwiftyLogger", package: "swifty-logger"),
                 .product(name: "NIOSSL", package: "swift-nio-ssl"),
                 .product(name: "KeychainAccess", package: "KeychainAccess"),
                 .product(name: "BetterSafariView", package: "BetterSafariView"),
-                .product(name: "QuantumLeap", package: "QuantumLeap"),
                 .product(name: "Gzip", package: "GzipSwift"),
-                .product(name: "SwiftyBeaver", package: "SwiftyBeaver"),
             ]
         ),
     ]
