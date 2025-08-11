@@ -13,6 +13,10 @@ Mudmouth is a network diagnostic library for capturing requests securely on iOS.
 - Xcode 16.x
 - fastlane
 
+### Known issues
+
+-
+
 ## Contributors
 
 - [zhxie](https://github.com/zhxie)

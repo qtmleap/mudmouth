@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "Mudmouth",
     defaultLocalization: "en",
-    platforms: [.iOS(.v17), .macOS(.v10_15)],
+    platforms: [.iOS(.v17)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
@@ -17,7 +17,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-certificates.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),
         .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.0.0"),
-        .package(url: "https://github.com/qtmleap/swifty-logger.git", from: "2.1.1"),
+        .package(url: "https://github.com/qtmleap/swifty-logger.git", exact: "2.1.1"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
         .package(url: "https://github.com/stleamist/BetterSafariView.git", from: "2.4.2"),
         .package(url: "https://github.com/1024jp/GzipSwift.git", from: "6.1.0"),
