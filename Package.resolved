@@ -1,5 +1,5 @@
 {
-  "originHash" : "c88db6ce4d1080c56e8030d58f5efd0af9264b2f10515b59d5e3c3eac6d492ac",
+  "originHash" : "868ef260af60acdbaf578782027e56df2383169e4768c7f3e909b603516ddac8",
   "pins" : [
     {
       "identity" : "bettersafariview",
@@ -159,7 +159,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/qtmleap/swifty-logger.git",
       "state" : {
-        "revision" : "1e76a8077d15e3258049e2f373250112f80c730e",
+        "revision" : "930ecd65f0c7536fffc28080f80ad499abce65d5",
         "version" : "2.1.1"
       }
     },
