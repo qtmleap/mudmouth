@@ -5,21 +5,21 @@
 //  Created by devonly on 2025/08/11.
 //
 
+import Crypto
 import Foundation
 import KeychainAccess
-import Crypto
-import X509
 import SwiftASN1
+import X509
 
 extension Keychain {
     func setPrivateKey(_ privateKey: P256.Signing.PrivateKey) throws {
         try set(privateKey.rawRepresentation, key: "privateKey")
     }
-    
+
     func setCertificate(_ certificate: Certificate) throws {
         try set(certificate.derRepresentation, key: "certificate")
     }
-    
+
     /// CA証明書鍵
     func getPrivateKey() throws -> P256.Signing.PrivateKey {
         guard let data: Data = try getData("privateKey")
@@ -28,13 +28,13 @@ extension Keychain {
         }
         return try P256.Signing.PrivateKey(rawRepresentation: data)
     }
-   
+
     /// CA証明書
     func getCertificate() throws -> Certificate {
         guard let data: Data = try getData("certificate")
         else {
             throw DecodingError.valueNotFound(Certificate.self, .init(codingPath: [], debugDescription: ""))
         }
-        return try .init(derEncoded: try DER.parse([UInt8](data)))
+        return try .init(derEncoded: DER.parse([UInt8](data)))
     }
 }

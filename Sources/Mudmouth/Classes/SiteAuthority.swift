@@ -6,12 +6,12 @@
 //  Copyright © 2025 QuantumLeap, Corporation. All rights reserved.
 //
 
-import SwiftUI
 import Crypto
-import X509
+import KeychainAccess
 import NIO
 import SwiftASN1
-import KeychainAccess
+import SwiftUI
+import X509
 
 @Observable
 final class SiteAuthority: KeyPairAuthority {
@@ -19,13 +19,13 @@ final class SiteAuthority: KeyPairAuthority {
         // サイト用の鍵
         let sitePrivateKey = P256.Signing.PrivateKey()
         let siteCertificateKey = Certificate.PrivateKey(sitePrivateKey)
-        
+
         // サイトのSubject情報
         let siteSubject: DistinguishedName = try! .init(builder: {
             CommonName("Mudmouth Generated")
             OrganizationName("NEVER KNOWS BEST")
         })
-        
+
         // 証明書の拡張
         let extensions = try! Certificate.Extensions(builder: {
             Critical(BasicConstraints.isCertificateAuthority(maxPathLength: nil))
@@ -34,7 +34,7 @@ final class SiteAuthority: KeyPairAuthority {
             SubjectKeyIdentifier(hash: siteCertificateKey.publicKey)
             SubjectAlternativeNames([.dnsName(url.host!)])
         })
-        
+
         // 証明書作成
         let certificate = try! Certificate(
             version: .v3,
@@ -46,9 +46,9 @@ final class SiteAuthority: KeyPairAuthority {
             subject: siteSubject,
             signatureAlgorithm: .ecdsaWithSHA256,
             extensions: extensions,
-            issuerPrivateKey: ca.privateKey.certificatePrivateKey
+            issuerPrivateKey: ca.privateKey.certificatePrivateKey,
         )
-        
+
         return .init(certificate: certificate, privateKey: sitePrivateKey)
     }
 }

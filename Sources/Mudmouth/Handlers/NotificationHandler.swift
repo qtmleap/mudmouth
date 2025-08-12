@@ -7,7 +7,8 @@
 //
 
 import Foundation
-//import Gzip
+
+// import Gzip
 import NIOHTTP1
 import UserNotifications
 
@@ -23,7 +24,7 @@ class NotificationHandler {
         ]
         let triger: UNTimeIntervalNotificationTrigger = .init(timeInterval: 1, repeats: false)
         let request: UNNotificationRequest = .init(
-            identifier: UUID().uuidString, content: content, trigger: triger
+            identifier: UUID().uuidString, content: content, trigger: triger,
         )
         try await UNUserNotificationCenter.current().add(request)
     }

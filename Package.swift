@@ -11,7 +11,8 @@ let package = Package(
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "Mudmouth",
-            targets: ["Mudmouth"]),
+            targets: ["Mudmouth"],
+        ),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-certificates.git", from: "1.0.0"),
@@ -37,7 +38,7 @@ let package = Package(
                 .product(name: "KeychainAccess", package: "KeychainAccess"),
                 .product(name: "BetterSafariView", package: "BetterSafariView"),
                 .product(name: "Gzip", package: "GzipSwift"),
-            ]
+            ],
         ),
-    ]
+    ],
 )

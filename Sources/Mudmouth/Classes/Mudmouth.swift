@@ -1,5 +1,5 @@
 //
-//  Interceptor.swift
+//  Mudmouth.swift
 //  Interceptor
 //
 //  Created by devonly on 2025/08/11.
@@ -8,23 +8,23 @@
 
 import Crypto
 import Foundation
-@preconcurrency import NetworkExtension
-import OSLog
-import X509
-import SwiftUI
 import KeychainAccess
-import SwiftASN1
-import UniformTypeIdentifiers
+@preconcurrency import NetworkExtension
 import NIO
 import NIOHTTP1
-import SwiftyLogger
 import NIOSSL
+import OSLog
+import SwiftASN1
+import SwiftUI
+import SwiftyLogger
+import UniformTypeIdentifiers
+import X509
 
 @MainActor
 @Observable
 public final class Mudmouth {
     public typealias CompletionHandler = (Error?) -> Void
-    
+
     private var manager: NETunnelProviderManager?
     /// NOTE: 空っぽのことはないはずなので多分大丈夫
     private var certificate: Certificate!
@@ -33,27 +33,34 @@ public final class Mudmouth {
     private let keychain: Keychain = .init(server: "https://api.lp1.av5ja.srv.nintendo.net", protocolType: .https)
     private let port: Int = 16836
     /// NOTE: 使ってないかも
-    private var channel: Channel? = nil
+    private var channel: Channel?
     /// NOTE: 使ってないかも
     private var group: EventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
     private let bundleIdentifier: String = "\(Bundle.main.bundleIdentifier!).packet-tunnel"
     private let generator: UINotificationFeedbackGenerator = .init()
+    private(set) var status: NEVPNStatus = .invalid
+
     /// スプラトゥーン3のURLスキーム
     private let url: URL = .init(unsafeString: "com.nintendo.znca://znca/game/4834290508791808")
-    
+
     /// <#Description#>
     var isInstalled: Bool {
         SwiftyLogger.debug("Checking VPN is installed")
         return manager != nil
     }
-    
+
+    var isConnected: Bool {
+        SwiftyLogger.debug("Checking VPN is connected")
+        return status == .connected
+    }
+
     var isNSOInstalled: Bool {
         SwiftyLogger.debug("Checking NSO is installed")
         SwiftyLogger.debug("URL Schema: \(UIApplication.shared.canOpenURL(URL(string: "com.nintendo.znca://")!))")
         SwiftyLogger.debug("URL Schema: \(UIApplication.shared.canOpenURL(URL(string: "npf71b963c1b7b6d119://")!))")
         return UIApplication.shared.canOpenURL(URL(string: "com.nintendo.znca://")!)
     }
-    
+
     /// 証明書がインストールされているかどうか
     var isVerified: Bool {
         SwiftyLogger.debug("Checking certificate installation")
@@ -62,13 +69,13 @@ public final class Mudmouth {
         let policy = SecPolicyCreateBasicX509()
         var trust: SecTrust?
         let status = SecTrustCreateWithCertificates(secCertificate, policy, &trust)
-        guard status == errSecSuccess, let trust = trust else {
+        guard status == errSecSuccess, let trust else {
             return false
         }
         var error: CFError?
         return SecTrustEvaluateWithError(trust, &error)
     }
-    
+
     /// 証明書が信頼されているかどうか
     var isTrusted: Bool {
         SwiftyLogger.debug("Checking certificate trust")
@@ -79,13 +86,13 @@ public final class Mudmouth {
         let policy = SecPolicyCreateSSL(true, url.host! as NSString)
         var trust: SecTrust?
         let status = SecTrustCreateWithCertificates(secCertificate, policy, &trust)
-        guard status == errSecSuccess, let trust = trust else {
+        guard status == errSecSuccess, let trust else {
             return false
         }
         var error: CFError?
         return SecTrustEvaluateWithError(trust, &error)
     }
-    
+
     /// VPN構成のインストールを実行する
     /// パスコード等の認証が必要になる
     @MainActor
@@ -99,16 +106,16 @@ public final class Mudmouth {
         SwiftyLogger.debug(configuration)
         try await manager.saveToPreferences()
     }
-    
+
     /// 初期設定
     @objc
     private func configure() {
         SwiftyLogger.debug("Interceptor: Configuring VPN Manager")
-        NETunnelProviderManager.loadAllFromPreferences(completionHandler: { managers, error in
+        NETunnelProviderManager.loadAllFromPreferences(completionHandler: { managers, _ in
             self.manager = managers?.first
         })
     }
-    
+
     /// VPNトンネルを開始する
     public func startVPNTunnel() async throws {
         SwiftyLogger.debug("Interceptor: Starting VPN Tunnel")
@@ -123,13 +130,14 @@ public final class Mudmouth {
         manager.isEnabled = true
         // 何をしているのかはよくわからない
         try await manager.saveToPreferences()
+        SwiftyLogger.debug("Interceptor: VPN Manager configured")
+        SwiftyLogger.debug("Interceptor: Starting VPN Tunnel with options: \(keyPair)")
         // サイト用の証明書をパスワードに同梱し、アプリに渡す
         try manager.connection.startVPNTunnel(options: [
-//            NEVPNConnectionStartOptionUsername: "Interceptor",
-            NEVPNConnectionStartOptionPassword: keyPair.data as NSObject
+            //            NEVPNConnectionStartOptionUsername: "Interceptor",
+            NEVPNConnectionStartOptionPassword: keyPair.data as NSObject,
         ])
         generator.notificationOccurred(.success)
-        await UIApplication.shared.open(url)
     }
 
     /// VPNトンネルを停止する
@@ -145,7 +153,7 @@ public final class Mudmouth {
             }
         })
     }
-    
+
     /// <#Description#>
     /// - Returns: <#description#>
     private func load() -> KeyPair {
@@ -164,7 +172,7 @@ public final class Mudmouth {
         }
         return generateCAKeyPair()
     }
-    
+
     /// NOTE: アプリ起動時に証明書を発行する
     /// 多分失敗しないのであんまり気にしなくて大丈夫
     /// - Returns: <#description#>
@@ -173,7 +181,7 @@ public final class Mudmouth {
         // CA用の秘密鍵
         let caPrivateKey = P256.Signing.PrivateKey()
         let caCertificateKey = Certificate.PrivateKey(caPrivateKey)
-        
+
         // CAのDN
         let name: DistinguishedName = try! .init(builder: {
             CountryName("JP")
@@ -182,13 +190,13 @@ public final class Mudmouth {
             OrganizationName("QuantumLeap")
             OrganizationalUnitName("NEVER KNOWS BEST")
         })
-        
+
         // 証明書拡張
         let extensions = try! Certificate.Extensions(builder: {
             Critical(BasicConstraints.isCertificateAuthority(maxPathLength: nil))
             Critical(KeyUsage(digitalSignature: true, keyCertSign: true))
         })
-        
+
         // 自己署名CA証明書
         let certificate = try! Certificate(
             version: .v3,
@@ -200,23 +208,23 @@ public final class Mudmouth {
             subject: name,
             signatureAlgorithm: .ecdsaWithSHA256,
             extensions: extensions,
-            issuerPrivateKey: caCertificateKey
+            issuerPrivateKey: caCertificateKey,
         )
-        
+
         var serializer = DER.Serializer()
         try! serializer.serialize(certificate)
-        
+
         // 保存
         try! keychain.setPrivateKey(privateKey)
         try! keychain.setCertificate(certificate)
-     
+
         // データを更新
-        self.privateKey = caPrivateKey
+        privateKey = caPrivateKey
         self.certificate = certificate
-        
+
         return .init(certificate: certificate, privateKey: caPrivateKey)
     }
-    
+
     /// <#Description#>
     /// - Parameter url: <#url description#>
     /// - Returns: <#description#>
@@ -224,13 +232,13 @@ public final class Mudmouth {
         // サイト用の鍵
         let sitePrivateKey = P256.Signing.PrivateKey()
         let siteCertificateKey = Certificate.PrivateKey(sitePrivateKey)
-        
+
         // サイトのSubject情報
         let siteSubject: DistinguishedName = try! .init(builder: {
             CommonName("Interceptor")
             OrganizationName("NEVER KNOWS BEST")
         })
-        
+
         // 証明書の拡張
         let extensions = try! Certificate.Extensions(builder: {
             Critical(BasicConstraints.isCertificateAuthority(maxPathLength: nil))
@@ -239,7 +247,7 @@ public final class Mudmouth {
             SubjectKeyIdentifier(hash: siteCertificateKey.publicKey)
             SubjectAlternativeNames([.dnsName(url.host!)])
         })
-        
+
         // 証明書作成
         let certificate = try! Certificate(
             version: .v3,
@@ -251,48 +259,58 @@ public final class Mudmouth {
             subject: siteSubject,
             signatureAlgorithm: .ecdsaWithSHA256,
             extensions: extensions,
-            issuerPrivateKey: privateKey.certificatePrivateKey
+            issuerPrivateKey: privateKey.certificatePrivateKey,
         )
-        
-        return .init(certificate: certificate, privateKey: privateKey)
+
+        return .init(certificate: certificate, privateKey: sitePrivateKey)
     }
-   
-    @discardableResult
-    public func startTunnel()  {
-        NSLog("Interceptor: Starting server on port \(port)")
-        let context: NIOSSLContext = try! .init(configuration: try! TLSConfiguration.makeServerConfiguration(
-            certificateChain: [
-                .certificate(.init(bytes: certificate.derBytes, format: .der))
-            ],
-            privateKey: .privateKey(.init(bytes: privateKey.certificatePrivateKey.derBytes, format: .der))))
-        ServerBootstrap(group: group)
-            .serverChannelOption(ChannelOptions.backlog, value: 256)
-            .serverChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
-            .childChannelInitializer { channel in
-                channel.pipeline.addHandlers(
-                    [
-                        ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)),
-                        HTTPResponseEncoder(),
-                        ConnectHandler(),
-                        NIOSSLServerHandler(context: context),
-                        ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)),
-                        HTTPResponseEncoder(),
-                        ProxyHandler(),
-                    ], position: .last
-                )
-            }
-            .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
-            .childChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
-            .bind(host: "127.0.0.1", port: port)
-    }
-    
+
+//
+//    @discardableResult
+//    public func startTunnel()  {
+//        NSLog("Interceptor: Starting server on port \(port)")
+//        let context: NIOSSLContext = try! .init(configuration: try! TLSConfiguration.makeServerConfiguration(
+//            certificateChain: [
+//                .certificate(.init(bytes: certificate.derBytes, format: .der))
+//            ],
+//            privateKey: .privateKey(.init(bytes: privateKey.certificatePrivateKey.derBytes, format: .der))))
+//        ServerBootstrap(group: group)
+//            .serverChannelOption(ChannelOptions.backlog, value: 256)
+//            .serverChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
+//            .childChannelInitializer { channel in
+//                channel.pipeline.addHandlers(
+//                    [
+//                        ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)),
+//                        HTTPResponseEncoder(),
+//                        ConnectHandler(),
+//                        NIOSSLServerHandler(context: context),
+//                        ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)),
+//                        HTTPResponseEncoder(),
+//                        ProxyHandler(),
+//                    ], position: .last
+//                )
+//            }
+//            .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
+//            .childChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
+//            .bind(host: "127.0.0.1", port: port)
+//    }
+
     public init() {
         // ここで何かしらの値が返ってくる
         let keyPair: KeyPair = load()
-        self.certificate = keyPair.certificate
-        self.privateKey = keyPair.privateKey
+        certificate = keyPair.certificate
+        privateKey = keyPair.privateKey
         /// アプリの状態変化時にデータを再読込する
-//        NotificationCenter.default.addObserver(self, selector: #selector(stopVPNTunnel), name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: manager?.connection, queue: .main, using: { notification in
+            guard let session: NETunnelProviderSession = notification.object as? NETunnelProviderSession
+            else {
+                return
+            }
+            Task(priority: .background, operation: { @MainActor in
+                SwiftyLogger.debug("VPN Status Changed: \(session.status)")
+                self.status = session.status
+            })
+        })
         NotificationCenter.default.addObserver(self, selector: #selector(stopVPNTunnel), name: UIApplication.willEnterForegroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(configure), name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
@@ -301,16 +319,16 @@ public final class Mudmouth {
 /// X509証明書をインストールするためのChannelInboundHandler
 /// PacketTunnelには直接関与しない
 class CertificateHandler: ChannelInboundHandler, @unchecked Sendable {
-    public typealias InboundIn = HTTPServerRequestPart
-    public typealias OutboundOut = HTTPServerResponsePart
-    
+    typealias InboundIn = HTTPServerRequestPart
+    typealias OutboundOut = HTTPServerResponsePart
+
     private let certificate: Certificate
-    
+
     init(certificate: Certificate) {
         self.certificate = certificate
     }
-    
-    public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+
+    func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let httpData = unwrapInboundIn(data)
         guard case .head = httpData else {
             return

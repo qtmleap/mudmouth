@@ -7,25 +7,25 @@
 //
 
 import Foundation
+import Gzip
 import NIOCore
 import NIOHTTP1
-import Gzip
 
 // MARK: - HTTP
 
 enum HTTP {
     typealias Parameters = [Parameter]
-    
+
     struct Parameter: Codable {
         let key: String
         let value: String
-        
+
         init?(key: String, value: String) {
             self.key = key
             self.value = value
         }
     }
-    
+
     class Request {
         // MARK: Lifecycle
 

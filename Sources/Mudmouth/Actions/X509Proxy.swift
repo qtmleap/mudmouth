@@ -5,27 +5,26 @@
 //  Created by devonly on 2025/08/11.
 //
 
-import SwiftUI
 import Foundation
 import KeychainAccess
-import X509
 import NIOCore
-import NIOPosix
 import NIOHTTP1
+import NIOPosix
+import SwiftUI
 import SwiftyLogger
+import X509
 
 @Observable
 public class X509Proxy: ChannelInboundHandler, @unchecked Sendable {
     public typealias InboundIn = HTTPServerRequestPart
     public typealias OutboundOut = HTTPServerResponsePart
-    
+
     private let keychain: Keychain = .init(server: "https://api.lp1.av5ja.srv.nintendo.net", protocolType: .https)
     private let port: Int = 8888
     public var url: URL {
         .init(string: "http://127.0.0.1:\(port)")!
     }
-    
-    
+
     /// X509証明書インストール用のサーバーの起動
     func start() throws {
         SwiftyLogger.debug("Starting X509Proxy on port \(port)")
@@ -46,17 +45,15 @@ public class X509Proxy: ChannelInboundHandler, @unchecked Sendable {
         bootstrap.bind(to: try! SocketAddress(ipAddress: "127.0.0.1", port: port))
             .whenComplete { [self] result in
                 switch result {
-                case .success:
-                    NSLog("Interceptor: Server bound to port \(port)")
-                    break
-                case .failure(let failure):
-                    NSLog("Interceptor: Failed to bind server: \(failure)")
-                    SwiftyLogger.error(failure)
-                    break
+                    case .success:
+                        NSLog("Interceptor: Server bound to port \(port)")
+                    case let .failure(failure):
+                        NSLog("Interceptor: Failed to bind server: \(failure)")
+                        SwiftyLogger.error(failure)
                 }
             }
     }
-    
+
     /// X509証明書インストール用のサーバーの停止
     /// FIXME: 現状は停止しない
     func stop() throws {
@@ -64,10 +61,10 @@ public class X509Proxy: ChannelInboundHandler, @unchecked Sendable {
         // Implement stopping logic if necessary
         // This might involve shutting down the event loop group or closing channels
     }
-    
+
     init() {}
 }
 
-extension X509Proxy {
-    public static let `default`: X509Proxy = .init()
+public extension X509Proxy {
+    static let `default`: X509Proxy = .init()
 }

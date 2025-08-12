@@ -21,25 +21,25 @@ final class NewConnectHandler: ChannelInboundHandler {
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let httpData: InboundIn = unwrapInboundIn(data)
         switch state {
-        case .idle:
-            switch httpData {
-            case .head(let head):
-                handleHead(context: context, head: head)
-            default:
-                return
-            }
-            state = .established
+            case .idle:
+                switch httpData {
+                    case let .head(head):
+                        handleHead(context: context, head: head)
+                    default:
+                        return
+                }
+                state = .established
 
-        case .awaitingEnd:
-            switch httpData {
-            case .end(let headers):
-                handleEnd(context: context, headers: headers)
-            default:
-                break
-            }
+            case .awaitingEnd:
+                switch httpData {
+                    case let .end(headers):
+                        handleEnd(context: context, headers: headers)
+                    default:
+                        break
+                }
 
-        case .established:
-            context.fireChannelRead(data)
+            case .established:
+                context.fireChannelRead(data)
         }
     }
 
@@ -78,36 +78,36 @@ final class NewConnectHandler: ChannelInboundHandler {
                         NSLog("HandleEnd->WhenSuccess->Result")
                         let headers: HTTPHeaders = .init([("Content-Length", "0")])
                         switch result {
-                        case .success(let client):
-                            let head: HTTPResponseHead = .init(
-                                version: .init(major: 1, minor: 1), status: .ok, headers: headers
-                            )
-                            context.write(wrapOutboundOut(.head(head)), promise: nil)
-                            context.writeAndFlush(wrapOutboundOut(.end(nil)), promise: nil)
-                            context.pipeline.context(handlerType: HTTPResponseEncoder.self)
-                                .whenSuccess { handler in
-                                    NSLog("HandleEnd->WhenSuccess->Result->WhenSuccess")
-                                    context.pipeline.removeHandler(context: handler, promise: nil)
-                                    let (local, remote) = GlueHandler.matchedPair()
-                                    context.pipeline.addHandler(local)
-                                        .and(client.pipeline.addHandler(remote))
-                                        .whenComplete { result in
-                                            NSLog("HandleEnd->WhenSuccess->Result->WhenSuccess->WhenComplete")
-                                            switch result {
-                                            case .success:
-                                                self.state = .established
-                                            case .failure:
-                                                context.close(promise: nil)
+                            case let .success(client):
+                                let head: HTTPResponseHead = .init(
+                                    version: .init(major: 1, minor: 1), status: .ok, headers: headers,
+                                )
+                                context.write(wrapOutboundOut(.head(head)), promise: nil)
+                                context.writeAndFlush(wrapOutboundOut(.end(nil)), promise: nil)
+                                context.pipeline.context(handlerType: HTTPResponseEncoder.self)
+                                    .whenSuccess { handler in
+                                        NSLog("HandleEnd->WhenSuccess->Result->WhenSuccess")
+                                        context.pipeline.removeHandler(context: handler, promise: nil)
+                                        let (local, remote) = GlueHandler.matchedPair()
+                                        context.pipeline.addHandler(local)
+                                            .and(client.pipeline.addHandler(remote))
+                                            .whenComplete { result in
+                                                NSLog("HandleEnd->WhenSuccess->Result->WhenSuccess->WhenComplete")
+                                                switch result {
+                                                    case .success:
+                                                        self.state = .established
+                                                    case .failure:
+                                                        context.close(promise: nil)
+                                                }
                                             }
-                                        }
-                                }
+                                    }
 
-                        case .failure:
-                            let head: HTTPResponseHead = .init(
-                                version: .init(major: 1, minor: 1), status: .notFound, headers: headers
-                            )
-                            context.write(wrapOutboundOut(.head(head)), promise: nil)
-                            context.writeAndFlush(wrapOutboundOut(.end(nil)), promise: nil)
+                            case .failure:
+                                let head: HTTPResponseHead = .init(
+                                    version: .init(major: 1, minor: 1), status: .notFound, headers: headers,
+                                )
+                                context.write(wrapOutboundOut(.head(head)), promise: nil)
+                                context.writeAndFlush(wrapOutboundOut(.end(nil)), promise: nil)
                         }
                     }
             }
@@ -115,15 +115,15 @@ final class NewConnectHandler: ChannelInboundHandler {
 
     private func handleHead(context: ChannelHandlerContext, head: HTTPRequestHead) {
         switch head.method {
-        case .CONNECT:
-            state = .awaitingEnd
-        default:
-            let headers: HTTPHeaders = .init([("Content-Length", "0")])
-            let head: HTTPResponseHead = .init(
-                version: .init(major: 1, minor: 1), status: .methodNotAllowed, headers: headers
-            )
-            context.write(wrapOutboundOut(.head(head)), promise: nil)
-            context.writeAndFlush(wrapOutboundOut(.end(nil)), promise: nil)
+            case .CONNECT:
+                state = .awaitingEnd
+            default:
+                let headers: HTTPHeaders = .init([("Content-Length", "0")])
+                let head: HTTPResponseHead = .init(
+                    version: .init(major: 1, minor: 1), status: .methodNotAllowed, headers: headers,
+                )
+                context.write(wrapOutboundOut(.head(head)), promise: nil)
+                context.writeAndFlush(wrapOutboundOut(.end(nil)), promise: nil)
         }
     }
 }

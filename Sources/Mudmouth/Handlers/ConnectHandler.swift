@@ -37,7 +37,7 @@ final class ConnectHandler: ChannelInboundHandler {
                             let sslClientContext = try! NIOSSLContext(configuration: clientConfiguration)
                             return channel.pipeline.addHandler(
                                 // swiftlint:disable:next force_unwrapping force_try
-                                try! NIOSSLClientHandler(context: sslClientContext, serverHostname: self.host!)
+                                try! NIOSSLClientHandler(context: sslClientContext, serverHostname: self.host!),
                             )
                             .flatMap { _ in
                                 channel.pipeline.addHandler(HTTPRequestEncoder())
@@ -51,55 +51,55 @@ final class ConnectHandler: ChannelInboundHandler {
                         .connect(host: self.host!, port: self.port!)
                         .whenComplete { result in
                             switch result {
-                            case .success(let client):
-                                // Send 200 to downstream.
-                                let headers = HTTPHeaders([("Content-Length", "0")])
-                                let head = HTTPResponseHead(
-                                    version: .init(major: 1, minor: 1), status: .ok, headers: headers
-                                )
-                                context.write(self.wrapOutboundOut(.head(head)), promise: nil)
-                                context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
-                                context.pipeline.context(handlerType: HTTPResponseEncoder.self).whenSuccess { handler in
-                                    context.pipeline.removeHandler(context: handler, promise: nil)
-                                    let (localGlue, remoteGlue) = GlueHandler.matchedPair()
-                                    context.pipeline.addHandler(localGlue)
-                                        .and(client.pipeline.addHandler(remoteGlue))
-                                        .whenComplete { result in
-                                            switch result {
-                                            case .success:
-                                                self.state = .established
-                                            case .failure(let failure):
-                                                SwiftyLogger.error(failure)
-                                                context.close(promise: nil)
+                                case let .success(client):
+                                    // Send 200 to downstream.
+                                    let headers = HTTPHeaders([("Content-Length", "0")])
+                                    let head = HTTPResponseHead(
+                                        version: .init(major: 1, minor: 1), status: .ok, headers: headers,
+                                    )
+                                    context.write(self.wrapOutboundOut(.head(head)), promise: nil)
+                                    context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
+                                    context.pipeline.context(handlerType: HTTPResponseEncoder.self).whenSuccess { handler in
+                                        context.pipeline.removeHandler(context: handler, promise: nil)
+                                        let (localGlue, remoteGlue) = GlueHandler.matchedPair()
+                                        context.pipeline.addHandler(localGlue)
+                                            .and(client.pipeline.addHandler(remoteGlue))
+                                            .whenComplete { result in
+                                                switch result {
+                                                    case .success:
+                                                        self.state = .established
+                                                    case let .failure(failure):
+                                                        SwiftyLogger.error(failure)
+                                                        context.close(promise: nil)
+                                                }
                                             }
-                                        }
-                                }
+                                    }
 
-                            case .failure(let failure):
-                                SwiftyLogger.error(failure.localizedDescription)
-                                // Send 404 to downstream.
-                                let headers = HTTPHeaders([("Content-Length", "0")])
-                                let head = HTTPResponseHead(
-                                    version: .init(major: 1, minor: 1), status: .notFound, headers: headers
-                                )
-                                context.write(self.wrapOutboundOut(.head(head)), promise: nil)
-                                context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
+                                case let .failure(failure):
+                                    SwiftyLogger.error(failure.localizedDescription)
+                                    // Send 404 to downstream.
+                                    let headers = HTTPHeaders([("Content-Length", "0")])
+                                    let head = HTTPResponseHead(
+                                        version: .init(major: 1, minor: 1), status: .notFound, headers: headers,
+                                    )
+                                    context.write(self.wrapOutboundOut(.head(head)), promise: nil)
+                                    context.writeAndFlush(self.wrapOutboundOut(.end(nil)), promise: nil)
                             }
                         }
                 }
         }
     }
-    
+
     private func idle(context: ChannelHandlerContext, data: NIOAny) {
         let httpData = unwrapInboundIn(data)
-        guard case .head(let head) = httpData else {
+        guard case let .head(head) = httpData else {
             return
         }
         guard head.method == .CONNECT else {
             // Send 405 to downstream.
             let headers = HTTPHeaders([("Content-Length", "0")])
             let head = HTTPResponseHead(
-                version: .init(major: 1, minor: 1), status: .methodNotAllowed, headers: headers
+                version: .init(major: 1, minor: 1), status: .methodNotAllowed, headers: headers,
             )
             context.write(wrapOutboundOut(.head(head)), promise: nil)
             context.writeAndFlush(wrapOutboundOut(.end(nil)), promise: nil)
@@ -111,17 +111,17 @@ final class ConnectHandler: ChannelInboundHandler {
         port = Int(components[1])!
         state = .awaitingEnd
     }
-    
+
     // swiftlint:disable:next function_body_length
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         switch state {
-        case .idle:
-            idle(context: context, data: data)
-        case .awaitingEnd:
-            awaitingEnd(context: context, data: data)
-        case .established:
-            // Forward data to the next channel.
-            context.fireChannelRead(data)
+            case .idle:
+                idle(context: context, data: data)
+            case .awaitingEnd:
+                awaitingEnd(context: context, data: data)
+            case .established:
+                // Forward data to the next channel.
+                context.fireChannelRead(data)
         }
     }
 

@@ -6,16 +6,16 @@
 //  Copyright © 2025 QuantumLeap, Corporation. All rights reserved.
 //
 
-import SwiftUI
 import BetterSafariView
+import SwiftUI
 
 struct CheckStatus: View {
     let status: Bool
-    
+
     init(_ status: Bool) {
         self.status = status
     }
-    
+
     var body: some View {
         Image(systemName: status ? "checkmark" : "xmark")
             .foregroundStyle(status ? .green : .red)
@@ -27,11 +27,11 @@ public struct ConfigurationView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var isPresented: Bool = false
     @State private var isEnabled: Bool = false
-    private var manager: Mudmouth = Mudmouth()
+    private var manager: Mudmouth = .init()
     private var proxy: X509Proxy = .default
-    
+
     public init() {}
-    
+
     public var body: some View {
         Form(content: {
             Section(content: {
@@ -67,6 +67,11 @@ public struct ConfigurationView: View {
                     }, label: {
                         Label(NSLocalizedString("LABEL_INSTALL_VPN", bundle: .module, comment: ""), systemImage: "lock.shield.fill")
                     })
+                })
+                LabeledContent(content: {
+                    CheckStatus(manager.isConnected)
+                }, label: {
+                    Label(NSLocalizedString("LABEL_CONNECTION_STATUS_VPN", bundle: .module, comment: ""), systemImage: "network")
                 })
                 Toggle(isOn: $isEnabled, label: {
                     Text(NSLocalizedString("LABEL_TOGGLE_VPN", bundle: .module, comment: ""))

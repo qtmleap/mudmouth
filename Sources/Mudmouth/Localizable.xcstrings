@@ -83,6 +83,16 @@
         }
       }
     },
+    "LABEL_CONNECTION_STATUS_VPN" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接続状態"
+          }
+        }
+      }
+    },
     "LABEL_DONE" : {
       "extractionState" : "manual",
       "localizations" : {
