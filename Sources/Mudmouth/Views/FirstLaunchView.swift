@@ -24,10 +24,10 @@ struct CheckStatus: View {
 }
 
 public struct ConfigurationView: View {
+    @Environment(Mudmouth.self) private var manager
     @Environment(\.dismiss) private var dismiss
     @State private var isPresented: Bool = false
     @State private var isEnabled: Bool = false
-    private var manager: Mudmouth = .init()
     private var proxy: X509Proxy = .default
 
     public init() {}
@@ -69,6 +69,11 @@ public struct ConfigurationView: View {
                     })
                 })
                 LabeledContent(content: {
+                    CheckStatus(manager.isAuthorized)
+                }, label: {
+                    Label(NSLocalizedString("LABEL_NOTIFICATION_VERIFIED", bundle: .module, comment: ""), systemImage: "bell.fill")
+                })
+                LabeledContent(content: {
                     CheckStatus(manager.isConnected)
                 }, label: {
                     Label(NSLocalizedString("LABEL_CONNECTION_STATUS_VPN", bundle: .module, comment: ""), systemImage: "network")
@@ -82,10 +87,10 @@ public struct ConfigurationView: View {
                 Text("FOOTER_VPN", bundle: .module)
             })
             Section(content: {
-                Button(action: {
-                    manager.generateCAKeyPair()
+                NavigationLink(destination: {
+                    CertificateView()
                 }, label: {
-                    Label(NSLocalizedString("LABEL_GENERATE_CERT", bundle: .module, comment: ""), systemImage: "key.fill")
+                    Label(NSLocalizedString("LABEL_CERTIFICATE_INFO", bundle: .module, comment: ""), systemImage: "key.fill")
                 })
                 Button(action: {
                     isPresented.toggle()
@@ -127,17 +132,10 @@ public struct ConfigurationView: View {
             })
         })
         .onChange(of: isEnabled, perform: { value in
-            if value {
-                Task(priority: .background, operation: {
-                    try await manager.startVPNTunnel()
-                })
-            }
+            Task(priority: .background, operation: {
+                value ? try await manager.startVPNTunnel() : try await manager.stopVPNTunnel()
+            })
         })
-//        .onAppear(perform: {
-//            Task(priority: .background, operation: {
-//                try await manager.stopVPNTunnel()
-//            })
-//        })
         .sheet(isPresented: $isPresented, content: {
             SafariView(url: proxy.url)
                 .onAppear(perform: {

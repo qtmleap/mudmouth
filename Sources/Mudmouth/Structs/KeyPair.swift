@@ -13,18 +13,22 @@ import X509
 
 public struct KeyPair: Codable {
     public let certificate: Certificate
-    public let privateKey: P256.Signing.PrivateKey
-    private let encoder: JSONEncoder = .init()
+    public let privateKey: Certificate.PrivateKey
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         certificate = try .init(derEncoded: container.decode(Data.self, forKey: .certificate).bytes)
-        privateKey = try .init(derRepresentation: container.decode(Data.self, forKey: .privateKey))
+        privateKey = try .init(derBytes: [UInt8](container.decode(Data.self, forKey: .privateKey)))
+    }
+
+    init(certificate: Certificate, privateKey: Certificate.PrivateKey) {
+        self.certificate = certificate
+        self.privateKey = privateKey
     }
 
     init(certificate: Certificate, privateKey: P256.Signing.PrivateKey) {
         self.certificate = certificate
-        self.privateKey = privateKey
+        self.privateKey = .init(privateKey)
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -35,13 +39,15 @@ public struct KeyPair: Codable {
 
     /// 失敗しないはずなので大丈夫
     var data: Data {
-        try! encoder.encode(self)
+        let encoder: JSONEncoder = .init()
+        return try! encoder.encode(self)
     }
 
+    /// SSLコンテキスト
     var context: NIOSSLContext {
         try! .init(configuration: try TLSConfiguration.makeServerConfiguration(certificateChain: [
             .certificate(NIOSSLCertificate(bytes: certificate.derBytes, format: .der)),
-        ], privateKey: .privateKey(NIOSSLPrivateKey(bytes: privateKey.certificatePrivateKey.derBytes, format: .der))))
+        ], privateKey: .privateKey(NIOSSLPrivateKey(bytes: privateKey.derBytes, format: .der))))
     }
 
     enum CodingKeys: String, CodingKey {

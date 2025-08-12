@@ -27,31 +27,36 @@ public class X509Proxy: ChannelInboundHandler, @unchecked Sendable {
 
     /// X509証明書インストール用のサーバーの起動
     func start() throws {
-        SwiftyLogger.debug("Starting X509Proxy on port \(port)")
-//        let privateKey: PrivateKey = try keychain.getPrivateKey()
-        let certificate: Certificate = try keychain.getCertificate()
-        let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-        let handler: CertificateHandler = .init(certificate: certificate)
-        let bootstrap = ServerBootstrap(group: group)
-            .serverChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
-            .childChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
-            .childChannelInitializer { channel in
-                channel.pipeline.configureHTTPServerPipeline()
-                    .flatMap { _ in
-                        channel.pipeline.addHandler(handler)
-                    }
-            }
-        // swiftlint:disable:next force_try
-        bootstrap.bind(to: try! SocketAddress(ipAddress: "127.0.0.1", port: port))
-            .whenComplete { [self] result in
-                switch result {
-                    case .success:
-                        NSLog("Interceptor: Server bound to port \(port)")
-                    case let .failure(failure):
-                        NSLog("Interceptor: Failed to bind server: \(failure)")
-                        SwiftyLogger.error(failure)
+        do {
+            SwiftyLogger.debug("Starting X509Proxy on port \(port)")
+            //        let privateKey: PrivateKey = try keychain.getPrivateKey()
+            let certificate: Certificate = try keychain.getCertificate()
+            let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+            let handler: CertificateHandler = .init(certificate: certificate)
+            let bootstrap = ServerBootstrap(group: group)
+                .serverChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
+                .childChannelOption(ChannelOptions.socket(SOL_SOCKET, SO_REUSEADDR), value: 1)
+                .childChannelInitializer { channel in
+                    channel.pipeline.configureHTTPServerPipeline()
+                        .flatMap { _ in
+                            channel.pipeline.addHandler(handler)
+                        }
                 }
-            }
+            // swiftlint:disable:next force_try
+            bootstrap.bind(to: try! SocketAddress(ipAddress: "127.0.0.1", port: port))
+                .whenComplete { [self] result in
+                    switch result {
+                        case .success:
+                            NSLog("Interceptor: Server bound to port \(port)")
+                        case let .failure(failure):
+                            NSLog("Interceptor: Failed to bind server: \(failure)")
+                            SwiftyLogger.error(failure)
+                    }
+                }
+        } catch {
+            SwiftyLogger.error("Failed to start X509Proxy: \(error)")
+            throw error
+        }
     }
 
     /// X509証明書インストール用のサーバーの停止

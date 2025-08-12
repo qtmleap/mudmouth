@@ -1,6 +1,76 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "ACTION_CANCEL" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャンセル"
+          }
+        }
+      }
+    },
+    "ACTION_REVOKE_CERTIFICATE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "続行"
+          }
+        }
+      }
+    },
+    "ALGORITHM" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アルゴリズム"
+          }
+        }
+      }
+    },
+    "CERTIFICATE_SHA256_HASH" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ハッシュ"
+          }
+        }
+      }
+    },
+    "CERTIFICATE_VARIDATION" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "検証"
+          }
+        }
+      }
+    },
+    "COMMON_NAME" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一般名"
+          }
+        }
+      }
+    },
+    "DIALOG_REGENERATE_CERTIFICATE_TITLE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "証明書を再発行すると既にインストール済みのプロファイルは利用できなくなります"
+          }
+        }
+      }
+    },
     "FOOTER_CERT" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -17,7 +87,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Interceptorの利用のためにはNintendo Switch Onlineのインストール及び、契約が必要です"
+            "value" : "Interceptorの利用にはNintendo Switch Appのインストール及び、Nintendo Switch Onlineの契約が必要です"
           }
         }
       }
@@ -29,6 +99,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "VPN構成をインストールしてください"
+          }
+        }
+      }
+    },
+    "GENERATE_NEW_CERTIFICATE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しい証明書を発行する"
           }
         }
       }
@@ -46,6 +126,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "証明書"
+          }
+        }
+      }
+    },
+    "HEADER_CERTIFICATE_UTILS" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "証明書ツール"
+          }
+        }
+      }
+    },
+    "HEADER_GENERAL" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一般"
+          }
+        }
+      }
+    },
+    "HEADER_KEY_INFORMATION" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "鍵情報"
           }
         }
       }
@@ -79,6 +189,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "VPN"
+          }
+        }
+      }
+    },
+    "LABEL_CERTIFICATE_INFO" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "証明書情報"
           }
         }
       }
@@ -127,16 +247,6 @@
         }
       }
     },
-    "LABEL_GENERATE_CERT" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "証明書の再発行"
-          }
-        }
-      }
-    },
     "LABEL_INSTALL_NSO" : {
       "localizations" : {
         "ja" : {
@@ -160,6 +270,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "インストール"
+          }
+        }
+      }
+    },
+    "LABEL_NOTIFICATION_VERIFIED" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知"
           }
         }
       }
@@ -228,8 +348,65 @@
         }
       }
     },
+    "NOT_VALID_AFTER" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有効期間終了日"
+          }
+        }
+      }
+    },
+    "NOT_VALID_BEFORE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有効期間開始日"
+          }
+        }
+      }
+    },
+    "ORGANIZATION" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "組織名"
+          }
+        }
+      }
+    },
+    "PRIVATE_KEY_DATA" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "秘密鍵"
+          }
+        }
+      }
+    },
+    "PUBLIC_KEY_DATA" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "公開鍵"
+          }
+        }
+      }
+    },
     "TITLE_CONFIGURATION" : {
-
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定"
+          }
+        }
+      }
     },
     "TOKEN_CAPTURED_BODY" : {
 

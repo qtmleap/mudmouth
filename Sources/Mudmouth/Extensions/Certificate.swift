@@ -8,6 +8,7 @@
 
 import CryptoKit
 import Foundation
+import SwiftyLogger
 import X509
 
 public extension Certificate {
@@ -21,18 +22,98 @@ public extension Certificate {
         try! serializeAsPEM().pemString
     }
 
-    ///
     var derBytes: [UInt8] {
         // swiftlint:disable:next force_try
         try! serializeAsPEM().derBytes
     }
 
-    func verify(privateKey key: Certificate.PrivateKey) -> Bool {
+    var orgnization: String {
+        issuer.first(where: { name in
+            name.description.starts(with: "O=")
+        })!.description.replacingOccurrences(of: "O=", with: "")
+    }
+
+    var commonName: String {
+        subject.first(where: { name in
+            name.description.starts(with: "CN=")
+        })!.description.replacingOccurrences(of: "CN=", with: "")
+    }
+
+    var sha256Hash: String {
+        let hash = SHA256.hash(data: derRepresentation)
+        return hash.map { String(format: "%02X", $0) }.joined()
+    }
+
+    func isValid(privateKey key: Certificate.PrivateKey) -> Bool {
         key.publicKey == publicKey
     }
 
-    func verify(publicKey key: Certificate.PublicKey) -> Bool {
+    func isValid(publicKey key: Certificate.PublicKey) -> Bool {
         key == publicKey
+    }
+
+    /// 証明書を発行する
+    /// - Parameter privateKey: <#privateKey description#>
+    init(_ privateKey: Certificate.PrivateKey) throws {
+        // CA証明書
+        let name: DistinguishedName = try! .init(builder: {
+            CountryName("JP")
+            CommonName("Interceptor")
+            LocalityName("TOKYO")
+            OrganizationName("QuantumLeap")
+            OrganizationalUnitName("NEVER KNOWS BEST")
+        })
+        // 証明書拡張
+        let extensions = try! Certificate.Extensions(builder: {
+            Critical(BasicConstraints.isCertificateAuthority(maxPathLength: nil))
+            Critical(KeyUsage(digitalSignature: true, keyCertSign: true))
+        })
+        // 自己署名CA証明書
+        try self.init(
+            version: .v3,
+            serialNumber: .default,
+            publicKey: privateKey.publicKey,
+            notValidBefore: .now,
+            notValidAfter: .now.addingTimeInterval(60 * 60 * 24 * 365 * 10),
+            issuer: name,
+            subject: name,
+            signatureAlgorithm: .ecdsaWithSHA256,
+            extensions: extensions,
+            issuerPrivateKey: privateKey,
+        )
+    }
+
+    /// サイト証明書を発行する
+    /// - Parameters:
+    ///   - publicKey: Site PublicKey
+    ///   - issuerPrivateKey: CA PrivateKey
+    ///   - issuer: CA Certificate
+    ///   - url: target URL
+    init(publicKey: Certificate.PublicKey, issuerPrivateKey: Certificate.PrivateKey, issuer: Certificate, url: URL) throws {
+        let siteSubject: DistinguishedName = try! .init(builder: {
+            CommonName("Interceptor")
+            OrganizationName("NEVER KNOWS BEST")
+        })
+        let extensions = try! Certificate.Extensions(builder: {
+            Critical(BasicConstraints.isCertificateAuthority(maxPathLength: nil))
+            Critical(KeyUsage(digitalSignature: true, keyCertSign: true))
+            try! ExtendedKeyUsage([.serverAuth, .ocspSigning])
+            SubjectKeyIdentifier(hash: publicKey)
+            SubjectAlternativeNames([.dnsName(url.host!)])
+        })
+        SwiftyLogger.debug("Verify: \(issuer.isValid(privateKey: issuerPrivateKey))")
+        try! self.init(
+            version: .v3,
+            serialNumber: .init(),
+            publicKey: publicKey,
+            notValidBefore: .now,
+            notValidAfter: .now.addingTimeInterval(60 * 60 * 24 * 365 * 2),
+            issuer: issuer.subject,
+            subject: siteSubject,
+            signatureAlgorithm: .ecdsaWithSHA256,
+            extensions: extensions,
+            issuerPrivateKey: issuerPrivateKey,
+        )
     }
 }
 
@@ -52,6 +133,7 @@ public extension Certificate.PrivateKey {
         try! serializeAsPEM().derBytes.data
     }
 
+    /// 毎回ランダムに鍵を生成する
     static var `default`: Certificate.PrivateKey {
         .init(P256.Signing.PrivateKey())
     }

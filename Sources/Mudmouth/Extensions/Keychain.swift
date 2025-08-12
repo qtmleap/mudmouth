@@ -26,7 +26,7 @@ extension Keychain {
         else {
             throw DecodingError.valueNotFound(P256.Signing.PublicKey.self, .init(codingPath: [], debugDescription: ""))
         }
-        return try Certificate.PrivateKey(P256.Signing.PrivateKey(rawRepresentation: data))
+        return try Certificate.PrivateKey(derBytes: [UInt8](data))
     }
 
     /// CA証明書

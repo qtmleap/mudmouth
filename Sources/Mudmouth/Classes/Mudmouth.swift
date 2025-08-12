@@ -23,36 +23,60 @@ import X509
 @MainActor
 @Observable
 public final class Mudmouth {
-    public typealias CompletionHandler = (Error?) -> Void
-
     private var manager: NETunnelProviderManager?
-    /// CA秘密鍵
-    private var privateKey: Certificate.PrivateKey {
-        get {
-            guard let privateKey = try? keychain.getPrivateKey()
-            else {
-                return .init(.init())
-            }
-            return privateKey
-        }
-        set {
+    private(set) var privateKey: Certificate.PrivateKey! {
+        willSet {
+            SwiftyLogger.warning("Private key updated, regenerating certificate")
             try? keychain.setPrivateKey(newValue)
         }
     }
 
-    /// CA証明書
-    private var certificate: Certificate {
-        get {
-            guard let certificate = try? keychain.getCertificate()
-            else {
-                return try! .init(privateKey)
-            }
-            return certificate
-        }
-        set {
+    private(set) var certificate: Certificate! {
+        willSet {
+            SwiftyLogger.warning("Certificate updated, saving to keychain")
             try? keychain.setCertificate(newValue)
         }
     }
+
+//    {
+//        didSet {
+//            SwiftyLogger.warning("Certificate updated, saving to keychain")
+//            try? keychain.setCertificate(newValue)
+//        }
+//    }
+
+//    /// CA秘密鍵
+//    private(set) var privateKey: Certificate.PrivateKey {
+//        get {
+//            guard let privateKey = try? keychain.getPrivateKey()
+//            else {
+//                SwiftyLogger.warning("No private key found, generating a new one")
+//                return .default
+//            }
+//            return privateKey
+//        }
+//        set {
+//            SwiftyLogger.warning("Setting new private key in keychain")
+//            try? keychain.setPrivateKey(newValue)
+//        }
+//    }
+//
+//    /// CA証明書
+//    @ObservationTracked
+//    private(set) var certificate: Certificate {
+//        get {
+//            guard let certificate = try? keychain.getCertificate()
+//            else {
+//                SwiftyLogger.warning("No certificate found, generating a new one")
+//                return try! .init(privateKey)
+//            }
+//            return certificate
+//        }
+//        set {
+//            SwiftyLogger.warning("Setting new certificate in keychain")
+//            try? keychain.setCertificate(newValue)
+//        }
+//    }
 
     private let keychain: Keychain = .init(server: "https://api.lp1.av5ja.srv.nintendo.net", protocolType: .https)
     private let port: Int = 16_836
@@ -111,6 +135,8 @@ public final class Mudmouth {
         return SecTrustEvaluateWithError(trust, &error)
     }
 
+    private(set) var isAuthorized: Bool = false
+
     /// VPN構成のインストールを実行する
     /// パスコード等の認証が必要になる
     @MainActor
@@ -125,17 +151,33 @@ public final class Mudmouth {
         try await manager.saveToPreferences()
     }
 
-    /// 初期設定
     @objc
-    private func configure() {
-        SwiftyLogger.debug("Interceptor: Configuring VPN Manager")
+    private func willEnterForegroundNotification() {
+        SwiftyLogger.debug("Interceptor: Configuring VPN Manager on foreground")
+        // NETunnelProviderManagerを更新
         NETunnelProviderManager.loadAllFromPreferences(completionHandler: { managers, _ in
             self.manager = managers?.first
+        })
+        UNUserNotificationCenter.current().getNotificationSettings(completionHandler: { @MainActor settings in
+            self.isAuthorized = settings.authorizationStatus == .authorized
+        })
+    }
+
+    @objc
+    private func didEnterBackgroundNotification() {
+        SwiftyLogger.debug("Interceptor: Configuring VPN Manager on background")
+        // NETunnelProviderManagerを更新
+        NETunnelProviderManager.loadAllFromPreferences(completionHandler: { managers, _ in
+            self.manager = managers?.first
+        })
+        UNUserNotificationCenter.current().getNotificationSettings(completionHandler: { settings in
+            self.isAuthorized = settings.authorizationStatus == .authorized
         })
     }
 
     /// VPNトンネルを開始する
     public func startVPNTunnel() async throws {
+        try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert])
         SwiftyLogger.debug("Interceptor: Starting VPN Tunnel")
         // 一応マネージャーがあるかをチェックする
         guard let manager = try await NETunnelProviderManager.loadAllFromPreferences().first
@@ -175,9 +217,8 @@ public final class Mudmouth {
     /// NOTE: アプリ起動時に証明書を発行する
     /// 多分失敗しないのであんまり気にしなくて大丈夫
     /// - Returns: <#description#>
-    @discardableResult
     func generateCAKeyPair() {
-        let privateKey: Certificate.PrivateKey = .init(.init())
+        let privateKey: Certificate.PrivateKey = .default
         let certificate: Certificate = try! .init(privateKey)
         self.privateKey = privateKey
         self.certificate = certificate
@@ -188,41 +229,73 @@ public final class Mudmouth {
     /// - Returns: <#description#>
     private func generateSiteKeyPair(url: URL) -> KeyPair {
         // サイト用の鍵
-        let sitePrivateKey = P256.Signing.PrivateKey()
-        let siteCertificateKey = Certificate.PrivateKey(sitePrivateKey)
-
-        // サイトのSubject情報
-        let siteSubject: DistinguishedName = try! .init(builder: {
-            CommonName("Interceptor")
-            OrganizationName("NEVER KNOWS BEST")
-        })
-
-        // 証明書の拡張
-        let extensions = try! Certificate.Extensions(builder: {
-            Critical(BasicConstraints.isCertificateAuthority(maxPathLength: nil))
-            Critical(KeyUsage(digitalSignature: true, keyCertSign: true))
-            try! ExtendedKeyUsage([.serverAuth, .ocspSigning])
-            SubjectKeyIdentifier(hash: siteCertificateKey.publicKey)
-            SubjectAlternativeNames([.dnsName(url.host!)])
-        })
-
-        // 証明書作成
-        let certificate = try! Certificate(
-            version: .v3,
-            serialNumber: .init(),
-            publicKey: siteCertificateKey.publicKey,
-            notValidBefore: .now,
-            notValidAfter: .now.addingTimeInterval(60 * 60 * 24 * 365 * 2),
-            issuer: certificate.subject, // CAのsubjectをissuerに
-            subject: siteSubject,
-            signatureAlgorithm: .ecdsaWithSHA256,
-            extensions: extensions,
+        let caCertificateKey: Certificate.PrivateKey = .default
+        let certificate: Certificate = try! .init(
+            publicKey: caCertificateKey.publicKey,
             issuerPrivateKey: privateKey,
+            issuer: certificate,
+            url: url,
         )
-
-        return .init(certificate: certificate, privateKey: sitePrivateKey)
+        return .init(certificate: certificate, privateKey: caCertificateKey)
     }
 
+    #if DEBUG || targetEnvironment(simulator)
+    public init() {
+        SwiftyLogger.debug("Mudmouth: Initializing in DEBUG mode")
+//        try! keychain.removeAll()
+        privateKey = {
+            guard let privateKey = try? keychain.getPrivateKey()
+            else {
+                SwiftyLogger.warning("No private key found, generating a new one")
+                return .default
+            }
+            return privateKey
+        }()
+        certificate = {
+            guard let certificate = try? keychain.getCertificate()
+            else {
+                SwiftyLogger.warning("No certificate found, generating a new one")
+                SwiftyLogger.debug(privateKey.derRepresentation.hexString)
+                SwiftyLogger.debug(self.privateKey.derRepresentation.hexString)
+                return try! .init(privateKey)
+            }
+            return certificate
+        }()
+        SwiftyLogger.debug("Mudmouth: Keychain cleared")
+        if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != "1" {
+//            /// ユーザーの通知設定を取得する
+//            UNUserNotificationCenter.current().getNotificationSettings(completionHandler: { settings in
+//                DispatchQueue.main.async(execute: {
+            ////                    SwiftyLogger.debug("Thread: \(Thread.current.isMainThread ? "Main" : "Background")")
+//                    print("Thread: \(Thread.current.isMainThread ? "Main" : "Background")")
+//                    self.isAuthorized = settings.authorizationStatus == .authorized
+//                })
+//            })
+            /// アプリの状態変化時にデータを再読込する
+            /// VPNマネージャをロードする
+            /// NOTE: 非同期関数が使えないのでこうやって読み込んでおく
+            /// NOTE: NEVPNManagerを読み込んでから通知を登録しないと無限にとんでくる
+            NETunnelProviderManager.loadAllFromPreferences(completionHandler: { [self] managers, _ in
+                if let manager = managers?.first {
+                    self.manager = manager
+                    NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: manager.connection, queue: .main, using: { notification in
+                        guard let session: NETunnelProviderSession = notification.object as? NETunnelProviderSession
+                        else {
+                            return
+                        }
+                        Task(priority: .background, operation: { @MainActor in
+                            SwiftyLogger.debug("VPN Status Changed: \(session.status)")
+                            self.status = session.status
+                        })
+                    })
+                }
+            })
+            NotificationCenter.default.addObserver(self, selector: #selector(willEnterForegroundNotification), name: UIApplication.willEnterForegroundNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackgroundNotification), name: UIApplication.didEnterBackgroundNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackgroundNotification), name: UIApplication.didBecomeActiveNotification, object: nil)
+        }
+    }
+    #else
     public init() {
         /// アプリの状態変化時にデータを再読込する
         /// VPNマネージャをロードする
@@ -246,35 +319,5 @@ public final class Mudmouth {
         NotificationCenter.default.addObserver(self, selector: #selector(stopVPNTunnel), name: UIApplication.willEnterForegroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(configure), name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
-}
-
-extension Certificate {
-    init(_ privateKey: Certificate.PrivateKey) throws {
-        // CA証明書
-        let name: DistinguishedName = try! .init(builder: {
-            CountryName("JP")
-            CommonName("Interceptor")
-            LocalityName("TOKYO")
-            OrganizationName("QuantumLeap")
-            OrganizationalUnitName("NEVER KNOWS BEST")
-        })
-        // 証明書拡張
-        let extensions = try! Certificate.Extensions(builder: {
-            Critical(BasicConstraints.isCertificateAuthority(maxPathLength: nil))
-            Critical(KeyUsage(digitalSignature: true, keyCertSign: true))
-        })
-        // 自己署名CA証明書
-        try self.init(
-            version: .v3,
-            serialNumber: .default,
-            publicKey: privateKey.publicKey,
-            notValidBefore: .now,
-            notValidAfter: .now.addingTimeInterval(60 * 60 * 24 * 365 * 10),
-            issuer: name,
-            subject: name,
-            signatureAlgorithm: .ecdsaWithSHA256,
-            extensions: extensions,
-            issuerPrivateKey: privateKey,
-        )
-    }
+    #endif
 }
