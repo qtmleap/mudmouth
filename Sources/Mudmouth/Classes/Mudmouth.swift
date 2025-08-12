@@ -151,33 +151,13 @@ public final class Mudmouth {
         try await manager.saveToPreferences()
     }
 
-    @objc
-    private func willEnterForegroundNotification() {
-        SwiftyLogger.debug("Interceptor: Configuring VPN Manager on foreground")
-        // NETunnelProviderManagerを更新
-        NETunnelProviderManager.loadAllFromPreferences(completionHandler: { managers, _ in
-            self.manager = managers?.first
-        })
-        UNUserNotificationCenter.current().getNotificationSettings(completionHandler: { @MainActor settings in
-            self.isAuthorized = settings.authorizationStatus == .authorized
-        })
-    }
-
-    @objc
-    private func didEnterBackgroundNotification() {
-        SwiftyLogger.debug("Interceptor: Configuring VPN Manager on background")
-        // NETunnelProviderManagerを更新
-        NETunnelProviderManager.loadAllFromPreferences(completionHandler: { managers, _ in
-            self.manager = managers?.first
-        })
-        UNUserNotificationCenter.current().getNotificationSettings(completionHandler: { settings in
-            self.isAuthorized = settings.authorizationStatus == .authorized
-        })
+    /// ユーザーに通知の許可をリクエストする
+    public func requestAuthorization(options: [UNNotificationPresentationOptions] = []) async throws {
+        try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert])
     }
 
     /// VPNトンネルを開始する
     public func startVPNTunnel() async throws {
-        try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert])
         SwiftyLogger.debug("Interceptor: Starting VPN Tunnel")
         // 一応マネージャーがあるかをチェックする
         guard let manager = try await NETunnelProviderManager.loadAllFromPreferences().first
@@ -239,10 +219,12 @@ public final class Mudmouth {
         return .init(certificate: certificate, privateKey: caCertificateKey)
     }
 
-    #if DEBUG || targetEnvironment(simulator)
     public init() {
+        #if DEBUG || targetEnvironment(simulator)
         SwiftyLogger.debug("Mudmouth: Initializing in DEBUG mode")
-//        try! keychain.removeAll()
+        #else
+        SwiftyLogger.debug("Mudmouth: Initializing in RELEASE mode")
+        #endif
         privateKey = {
             guard let privateKey = try? keychain.getPrivateKey()
             else {
@@ -261,42 +243,6 @@ public final class Mudmouth {
             }
             return certificate
         }()
-        SwiftyLogger.debug("Mudmouth: Keychain cleared")
-        if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != "1" {
-//            /// ユーザーの通知設定を取得する
-//            UNUserNotificationCenter.current().getNotificationSettings(completionHandler: { settings in
-//                DispatchQueue.main.async(execute: {
-            ////                    SwiftyLogger.debug("Thread: \(Thread.current.isMainThread ? "Main" : "Background")")
-//                    print("Thread: \(Thread.current.isMainThread ? "Main" : "Background")")
-//                    self.isAuthorized = settings.authorizationStatus == .authorized
-//                })
-//            })
-            /// アプリの状態変化時にデータを再読込する
-            /// VPNマネージャをロードする
-            /// NOTE: 非同期関数が使えないのでこうやって読み込んでおく
-            /// NOTE: NEVPNManagerを読み込んでから通知を登録しないと無限にとんでくる
-            NETunnelProviderManager.loadAllFromPreferences(completionHandler: { [self] managers, _ in
-                if let manager = managers?.first {
-                    self.manager = manager
-                    NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: manager.connection, queue: .main, using: { notification in
-                        guard let session: NETunnelProviderSession = notification.object as? NETunnelProviderSession
-                        else {
-                            return
-                        }
-                        Task(priority: .background, operation: { @MainActor in
-                            SwiftyLogger.debug("VPN Status Changed: \(session.status)")
-                            self.status = session.status
-                        })
-                    })
-                }
-            })
-            NotificationCenter.default.addObserver(self, selector: #selector(willEnterForegroundNotification), name: UIApplication.willEnterForegroundNotification, object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackgroundNotification), name: UIApplication.didEnterBackgroundNotification, object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackgroundNotification), name: UIApplication.didBecomeActiveNotification, object: nil)
-        }
-    }
-    #else
-    public init() {
         /// アプリの状態変化時にデータを再読込する
         /// VPNマネージャをロードする
         /// NOTE: 非同期関数が使えないのでこうやって読み込んでおく
@@ -316,8 +262,47 @@ public final class Mudmouth {
                 })
             }
         })
-        NotificationCenter.default.addObserver(self, selector: #selector(stopVPNTunnel), name: UIApplication.willEnterForegroundNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(configure), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForegroundNotification), name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackgroundNotification), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActiveNotification), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
-    #endif
+
+    @objc
+    private func willEnterForegroundNotification() {
+        SwiftyLogger.debug("Interceptor: Configuring VPN Manager on foreground")
+        // NETunnelProviderManagerを更新
+        NETunnelProviderManager.loadAllFromPreferences(completionHandler: { managers, _ in
+            self.manager = managers?.first
+        })
+        Task(priority: .background, operation: {
+            let settings: UNNotificationSettings = try await UNUserNotificationCenter.current().notificationSettings()
+            self.isAuthorized = settings.authorizationStatus == .authorized
+        })
+    }
+
+    @objc
+    private func didEnterBackgroundNotification() {
+        SwiftyLogger.debug("Interceptor: Configuring VPN Manager on background")
+        // NETunnelProviderManagerを更新
+        NETunnelProviderManager.loadAllFromPreferences(completionHandler: { managers, _ in
+            self.manager = managers?.first
+        })
+        Task(priority: .background, operation: {
+            let settings: UNNotificationSettings = try await UNUserNotificationCenter.current().notificationSettings()
+            self.isAuthorized = settings.authorizationStatus == .authorized
+        })
+    }
+
+    @objc
+    private func didBecomeActiveNotification() {
+        SwiftyLogger.debug("Interceptor: Configuring VPN Manager on background")
+        // NETunnelProviderManagerを更新
+        NETunnelProviderManager.loadAllFromPreferences(completionHandler: { managers, _ in
+            self.manager = managers?.first
+        })
+        Task(priority: .background, operation: {
+            let settings: UNNotificationSettings = try await UNUserNotificationCenter.current().notificationSettings()
+            self.isAuthorized = settings.authorizationStatus == .authorized
+        })
+    }
 }

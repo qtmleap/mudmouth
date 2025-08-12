@@ -28,6 +28,7 @@ final class ProxyHandler: NotificationHandler, ChannelDuplexHandler {
         let httpData = unwrapInboundIn(data)
         switch httpData {
             case let .head(head):
+                NSLog("Received request: \(head.uri)")
                 if head.uri == url.path {
                     requests.append(.init(head: head))
                 }
@@ -58,6 +59,9 @@ final class ProxyHandler: NotificationHandler, ChannelDuplexHandler {
                     SwiftyLogger.debug(request)
                     let headers = request.headers.base64EncodedString
                     let body = request.body.base64EncodedString
+                    // データを処理して通知を送信し、アプリにデータを渡す
+                    // NOTE: とりあえずヘッダーとレスポンスをBASE64でエンコードして全部返している
+                    // このデータが有ればとりあえず困ることはなさそう
                     Task(priority: .background, operation: {
                         let content: UNMutableNotificationContent = .init()
                         content.title = NSLocalizedString("TOKEN_CAPTURED_TITLE", bundle: .module, comment: "")

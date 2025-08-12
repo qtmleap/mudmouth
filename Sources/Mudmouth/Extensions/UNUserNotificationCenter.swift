@@ -9,7 +9,7 @@
 import Foundation
 
 // @preconcurrency
-// import UserNotifications
+import UserNotifications
 
 // extension UNUserNotificationCenter:
 //    func getNotificationSettings() async throws -> UNNotificationSettings {
@@ -21,4 +21,4 @@ import Foundation
 //    }
 // }
 //
-// extension UNNotificationSettings: @unchecked Sendable {}
+extension UNNotificationSettings: @unchecked Sendable {}

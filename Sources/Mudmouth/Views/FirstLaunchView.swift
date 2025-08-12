@@ -68,10 +68,16 @@ public struct ConfigurationView: View {
                         Label(NSLocalizedString("LABEL_INSTALL_VPN", bundle: .module, comment: ""), systemImage: "lock.shield.fill")
                     })
                 })
-                LabeledContent(content: {
-                    CheckStatus(manager.isAuthorized)
+                Button(action: {
+                    Task(priority: .background, operation: {
+                        try await manager.requestAuthorization(options: [.alert])
+                    })
                 }, label: {
-                    Label(NSLocalizedString("LABEL_NOTIFICATION_VERIFIED", bundle: .module, comment: ""), systemImage: "bell.fill")
+                    LabeledContent(content: {
+                        CheckStatus(manager.isAuthorized)
+                    }, label: {
+                        Label(NSLocalizedString("LABEL_NOTIFICATION_VERIFIED", bundle: .module, comment: ""), systemImage: "bell.fill")
+                    })
                 })
                 LabeledContent(content: {
                     CheckStatus(manager.isConnected)
@@ -145,7 +151,7 @@ public struct ConfigurationView: View {
                     try? proxy.stop()
                 })
         })
-        .navigationTitle("TITLE_CONFIGURATION")
+        .navigationTitle(Text("TITLE_CONFIGURATION", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
     }
 }
