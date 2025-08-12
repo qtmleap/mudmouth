@@ -55,9 +55,7 @@ public final class Mudmouth {
     }
 
     var isNSOInstalled: Bool {
-        SwiftyLogger.debug("Checking NSO is installed")
-        SwiftyLogger.debug("URL Schema: \(UIApplication.shared.canOpenURL(URL(string: "com.nintendo.znca://")!))")
-        SwiftyLogger.debug("URL Schema: \(UIApplication.shared.canOpenURL(URL(string: "npf71b963c1b7b6d119://")!))")
+        SwiftyLogger.debug("Checking Nintendo Switch Online is installed")
         return UIApplication.shared.canOpenURL(URL(string: "com.nintendo.znca://")!)
     }
 
@@ -301,16 +299,24 @@ public final class Mudmouth {
         certificate = keyPair.certificate
         privateKey = keyPair.privateKey
         /// アプリの状態変化時にデータを再読込する
-        NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: manager?.connection, queue: .main, using: { notification in
+      /// VPNマネージャをロードする
+      /// NOTE: 非同期関数が使えないのでこうやって読み込んでおく
+      /// NOTE: NEVPNManagerを読み込んでから通知を登録しないと無限にとんでくる
+      NETunnelProviderManager.loadAllFromPreferences(completionHandler: { [self] managers, _ in
+        if let manager = managers?.first {
+          self.manager = manager
+          NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: manager.connection, queue: .main, using: { notification in
             guard let session: NETunnelProviderSession = notification.object as? NETunnelProviderSession
             else {
-                return
+              return
             }
             Task(priority: .background, operation: { @MainActor in
-                SwiftyLogger.debug("VPN Status Changed: \(session.status)")
-                self.status = session.status
+              SwiftyLogger.debug("VPN Status Changed: \(session.status)")
+              self.status = session.status
             })
-        })
+          })
+        }
+      })
         NotificationCenter.default.addObserver(self, selector: #selector(stopVPNTunnel), name: UIApplication.willEnterForegroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(configure), name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
