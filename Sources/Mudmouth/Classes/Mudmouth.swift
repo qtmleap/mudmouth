@@ -26,10 +26,34 @@ public final class Mudmouth {
     public typealias CompletionHandler = (Error?) -> Void
 
     private var manager: NETunnelProviderManager?
-    /// NOTE: 空っぽのことはないはずなので多分大丈夫
-    private var certificate: Certificate!
-    /// NOTE: 空っぽのことはないはずなので多分大丈夫
-    private var privateKey: P256.Signing.PrivateKey!
+    /// CA秘密鍵
+    private var privateKey: Certificate.PrivateKey {
+        get {
+            guard let privateKey = try? keychain.getPrivateKey()
+            else {
+                return .init(.init())
+            }
+            return privateKey
+        }
+        set {
+            try? keychain.setPrivateKey(newValue)
+        }
+    }
+
+    /// CA証明書
+    private var certificate: Certificate {
+        get {
+            guard let certificate = try? keychain.getCertificate()
+            else {
+                return try! .init(privateKey)
+            }
+            return certificate
+        }
+        set {
+            try? keychain.setCertificate(newValue)
+        }
+    }
+
     private let keychain: Keychain = .init(server: "https://api.lp1.av5ja.srv.nintendo.net", protocolType: .https)
     private let port: Int = 16_836
     private let bundleIdentifier: String = "\(Bundle.main.bundleIdentifier!).packet-tunnel"
@@ -148,75 +172,15 @@ public final class Mudmouth {
         })
     }
 
-    /// <#Description#>
-    /// - Returns: <#description#>
-    private func load() -> KeyPair {
-        //        if let privateKeyData = try? keychain.getData("privateKey"),
-        //           let certificateData = try? keychain.getData("certificate"),
-        //           let privateKey = try? P256.Signing.PrivateKey(rawRepresentation: privateKeyData),
-        //           let der = try? DER.parse([UInt8](certificateData)),
-        //           let certificate = try? Certificate(derEncoded: der)
-        //        {
-        //            return (certificate, privateKey)
-        //        }
-        if let privateKey = try? keychain.getPrivateKey(),
-           let certificate = try? keychain.getCertificate()
-        {
-            return .init(certificate: certificate, privateKey: privateKey)
-        }
-        return generateCAKeyPair()
-    }
-
     /// NOTE: アプリ起動時に証明書を発行する
     /// 多分失敗しないのであんまり気にしなくて大丈夫
     /// - Returns: <#description#>
     @discardableResult
-    func generateCAKeyPair() -> KeyPair {
-        // CA用の秘密鍵
-        let caPrivateKey = P256.Signing.PrivateKey()
-        let caCertificateKey = Certificate.PrivateKey(caPrivateKey)
-
-        // CAのDN
-        let name: DistinguishedName = try! .init(builder: {
-            CountryName("JP")
-            CommonName("Interceptor")
-            LocalityName("TOKYO")
-            OrganizationName("QuantumLeap")
-            OrganizationalUnitName("NEVER KNOWS BEST")
-        })
-
-        // 証明書拡張
-        let extensions = try! Certificate.Extensions(builder: {
-            Critical(BasicConstraints.isCertificateAuthority(maxPathLength: nil))
-            Critical(KeyUsage(digitalSignature: true, keyCertSign: true))
-        })
-
-        // 自己署名CA証明書
-        let certificate = try! Certificate(
-            version: .v3,
-            serialNumber: .init(),
-            publicKey: caCertificateKey.publicKey,
-            notValidBefore: .now,
-            notValidAfter: .now.addingTimeInterval(60 * 60 * 24 * 365 * 10),
-            issuer: name,
-            subject: name,
-            signatureAlgorithm: .ecdsaWithSHA256,
-            extensions: extensions,
-            issuerPrivateKey: caCertificateKey,
-        )
-
-        var serializer = DER.Serializer()
-        try! serializer.serialize(certificate)
-
-        // 保存
-        try! keychain.setPrivateKey(privateKey)
-        try! keychain.setCertificate(certificate)
-
-        // データを更新
-        privateKey = caPrivateKey
+    func generateCAKeyPair() {
+        let privateKey: Certificate.PrivateKey = .init(.init())
+        let certificate: Certificate = try! .init(privateKey)
+        self.privateKey = privateKey
         self.certificate = certificate
-
-        return .init(certificate: certificate, privateKey: caPrivateKey)
     }
 
     /// <#Description#>
@@ -253,17 +217,13 @@ public final class Mudmouth {
             subject: siteSubject,
             signatureAlgorithm: .ecdsaWithSHA256,
             extensions: extensions,
-            issuerPrivateKey: privateKey.certificatePrivateKey,
+            issuerPrivateKey: privateKey,
         )
 
         return .init(certificate: certificate, privateKey: sitePrivateKey)
     }
 
     public init() {
-        // ここで何かしらの値が返ってくる
-        let keyPair: KeyPair = load()
-        certificate = keyPair.certificate
-        privateKey = keyPair.privateKey
         /// アプリの状態変化時にデータを再読込する
         /// VPNマネージャをロードする
         /// NOTE: 非同期関数が使えないのでこうやって読み込んでおく
@@ -285,5 +245,36 @@ public final class Mudmouth {
         })
         NotificationCenter.default.addObserver(self, selector: #selector(stopVPNTunnel), name: UIApplication.willEnterForegroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(configure), name: UIApplication.didEnterBackgroundNotification, object: nil)
+    }
+}
+
+extension Certificate {
+    init(_ privateKey: Certificate.PrivateKey) throws {
+        // CA証明書
+        let name: DistinguishedName = try! .init(builder: {
+            CountryName("JP")
+            CommonName("Interceptor")
+            LocalityName("TOKYO")
+            OrganizationName("QuantumLeap")
+            OrganizationalUnitName("NEVER KNOWS BEST")
+        })
+        // 証明書拡張
+        let extensions = try! Certificate.Extensions(builder: {
+            Critical(BasicConstraints.isCertificateAuthority(maxPathLength: nil))
+            Critical(KeyUsage(digitalSignature: true, keyCertSign: true))
+        })
+        // 自己署名CA証明書
+        try self.init(
+            version: .v3,
+            serialNumber: .default,
+            publicKey: privateKey.publicKey,
+            notValidBefore: .now,
+            notValidAfter: .now.addingTimeInterval(60 * 60 * 24 * 365 * 10),
+            issuer: name,
+            subject: name,
+            signatureAlgorithm: .ecdsaWithSHA256,
+            extensions: extensions,
+            issuerPrivateKey: privateKey,
+        )
     }
 }

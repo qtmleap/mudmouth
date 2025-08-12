@@ -12,8 +12,8 @@ import SwiftASN1
 import X509
 
 extension Keychain {
-    func setPrivateKey(_ privateKey: P256.Signing.PrivateKey) throws {
-        try set(privateKey.rawRepresentation, key: "privateKey")
+    func setPrivateKey(_ privateKey: Certificate.PrivateKey) throws {
+        try set(privateKey.derRepresentation, key: "privateKey")
     }
 
     func setCertificate(_ certificate: Certificate) throws {
@@ -21,12 +21,12 @@ extension Keychain {
     }
 
     /// CA証明書鍵
-    func getPrivateKey() throws -> P256.Signing.PrivateKey {
+    func getPrivateKey() throws -> Certificate.PrivateKey {
         guard let data: Data = try getData("privateKey")
         else {
             throw DecodingError.valueNotFound(P256.Signing.PublicKey.self, .init(codingPath: [], debugDescription: ""))
         }
-        return try P256.Signing.PrivateKey(rawRepresentation: data)
+        return try Certificate.PrivateKey(P256.Signing.PrivateKey(rawRepresentation: data))
     }
 
     /// CA証明書
