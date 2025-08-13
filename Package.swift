@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "Mudmouth",
-    defaultLocalization: "en",
+    defaultLocalization: "ja",
     platforms: [.iOS(.v17)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -22,6 +22,7 @@ let package = Package(
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
         .package(url: "https://github.com/stleamist/BetterSafariView.git", from: "2.4.2"),
         .package(url: "https://github.com/1024jp/GzipSwift.git", from: "6.1.0"),
+        .package(url: "https://github.com/siteline/swiftui-introspect.git", from: "1.3.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -38,6 +39,7 @@ let package = Package(
                 .product(name: "KeychainAccess", package: "KeychainAccess"),
                 .product(name: "BetterSafariView", package: "BetterSafariView"),
                 .product(name: "Gzip", package: "GzipSwift"),
+                .product(name: "SwiftUIIntrospect", package: "swiftui-introspect"),
             ],
         ),
     ],

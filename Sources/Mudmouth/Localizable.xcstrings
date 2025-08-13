@@ -31,6 +31,106 @@
         }
       }
     },
+    "BUTTON_ACTIVATE_VPN" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VPNを有効化する"
+          }
+        }
+      }
+    },
+    "BUTTON_ALLOW_NOTIFICATION" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知許可を設定する"
+          }
+        }
+      }
+    },
+    "BUTTON_DOWNLOAD_PROFILE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイルをダウンロードする"
+          }
+        }
+      }
+    },
+    "BUTTON_END" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定完了"
+          }
+        }
+      }
+    },
+    "BUTTON_INSTALL_VPN" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VPN構成をインストールする"
+          }
+        }
+      }
+    },
+    "BUTTON_NEXT" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "つぎへ"
+          }
+        }
+      }
+    },
+    "BUTTON_OPEN_APP" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリを開く"
+          }
+        }
+      }
+    },
+    "BUTTON_OPEN_APP_STORE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリをインストールする"
+          }
+        }
+      }
+    },
+    "BUTTON_OPEN_VPN_SETTINGS" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VPN設定を開く"
+          }
+        }
+      }
+    },
+    "BUTTON_TRUST_CERTIFICATE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "証明書設定を開く"
+          }
+        }
+      }
+    },
     "CERTIFICATE_SHA256_HASH" : {
       "localizations" : {
         "ja" : {
@@ -101,6 +201,96 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "スプラトゥーン3"
+          }
+        }
+      }
+    },
+    "DESCRIPTION_ALLOW_NOTIFICATION" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本アプリはリクエストを取得後に通知を送ります。おやすみモードや睡眠が有効になっている場合、通知が届かないことに注意してください。"
+          }
+        }
+      }
+    },
+    "DESCRIPTION_APP_NAME" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本アプリはVPN機能を利用してパケットを解析する機能を有します。通信は高度なセキュリティで暗号化されており、キャプチャされたデータを一切収集しません。"
+          }
+        }
+      }
+    },
+    "DESCRIPTION_DOWNLOAD_VPN_PROFILE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイルをデバイスにダウンロードしてください。"
+          }
+        }
+      }
+    },
+    "DESCRIPTION_INSTALL_NINTENDO_APP" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本アプリの利用のためにNintendo Switch Appをインストールしてください。"
+          }
+        }
+      }
+    },
+    "DESCRIPTION_INSTALL_VPN" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リクエストを取得するためのVPN構成プロファイルをインストールしてください。"
+          }
+        }
+      }
+    },
+    "DESCRIPTION_INSTALL_VPN_PROFILE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定 > 一般 > VPNとデバイス管理 > ダウンロード済みプロファイル から手動でインストールしてください。"
+          }
+        }
+      }
+    },
+    "DESCRIPTION_TEST_OPEN_APP" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリを開いてゲームを選択してください。"
+          }
+        }
+      }
+    },
+    "DESCRIPTION_TEST_TOGGLE_VPN" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リクエストをキャプチャするためにVPNの構成を有効化します。"
+          }
+        }
+      }
+    },
+    "DESCRIPTION_TRUST_CERTIFICATE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定 > 一般 > 情報 > 証明書信頼設定 > ルート証明書を全面的に信頼 から手動で信頼してください。"
           }
         }
       }
@@ -452,12 +642,102 @@
         }
       }
     },
+    "TITLE_ALLOW_NOTIFICATION" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知設定"
+          }
+        }
+      }
+    },
+    "TITLE_APP_NAME" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本アプリについて"
+          }
+        }
+      }
+    },
     "TITLE_CONFIGURATION" : {
       "localizations" : {
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "設定"
+          }
+        }
+      }
+    },
+    "TITLE_DOWNLOAD_VPN_PROFILE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VPN構成プロファイル"
+          }
+        }
+      }
+    },
+    "TITLE_INSTALL_NINTENDO_APP" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリのインストール"
+          }
+        }
+      }
+    },
+    "TITLE_INSTALL_VPN" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VPN構成のインストール"
+          }
+        }
+      }
+    },
+    "TITLE_INSTALL_VPN_PROFILE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイルのインストール"
+          }
+        }
+      }
+    },
+    "TITLE_TEST_OPEN_APP" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "試してみましょう"
+          }
+        }
+      }
+    },
+    "TITLE_TEST_TOGGLE_VPN" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VPN構成の有効化"
+          }
+        }
+      }
+    },
+    "TITLE_TRUST_CERTIFICATE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "証明書の信頼"
           }
         }
       }

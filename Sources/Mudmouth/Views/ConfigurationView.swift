@@ -42,7 +42,7 @@ public struct ConfigurationView: View {
                     })
                 }, label: {
                     LabeledContent(content: {
-                        CheckStatus(manager.isNSOInstalled)
+                        CheckStatus(manager.isAPPInstalled)
                     }, label: {
                         Label(NSLocalizedString("LABEL_INSTALL_NSO", bundle: .module, comment: ""), systemImage: "switch.2")
                     })
@@ -64,7 +64,7 @@ public struct ConfigurationView: View {
                     })
                 }, label: {
                     LabeledContent(content: {
-                        CheckStatus(manager.isInstalled)
+                        CheckStatus(manager.isVPNInstalled)
                     }, label: {
                         Label(NSLocalizedString("LABEL_INSTALL_VPN", bundle: .module, comment: ""), systemImage: "lock.shield.fill")
                     })
