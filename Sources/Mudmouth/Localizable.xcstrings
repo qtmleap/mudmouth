@@ -61,6 +61,50 @@
         }
       }
     },
+    "CONTENTID_ACNH" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あつまれ どうぶつの森"
+          }
+        }
+      }
+    },
+    "CONTENTID_SMSP" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "大乱闘スマッシュブラザーズ SPECIAL"
+          }
+        }
+      }
+    },
+    "CONTENTID_SP2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スプラトゥーン2"
+          }
+        }
+      }
+    },
+    "CONTENTID_SP3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スプラトゥーン3"
+          }
+        }
+      }
+    },
     "DIALOG_REGENERATE_CERTIFICATE_TITLE" : {
       "localizations" : {
         "ja" : {
@@ -242,7 +286,17 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ダウンロード"
+            "value" : "証明書のダウンロード"
+          }
+        }
+      }
+    },
+    "LABEL_GAME_CONTENT_ID" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コンテンツ"
           }
         }
       }
@@ -435,6 +489,26 @@
         "ja" : {
           "stringUnit" : {
             "state" : "needs_review",
+            "value" : "レスポンスを取得しました"
+          }
+        }
+      }
+    },
+    "UNNOTIFICATION_REQUEST_BODY" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タップでアプリを開いて処理を実行します"
+          }
+        }
+      }
+    },
+    "UNNOTIFICATION_REQUEST_TITLE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
             "value" : "レスポンスを取得しました"
           }
         }

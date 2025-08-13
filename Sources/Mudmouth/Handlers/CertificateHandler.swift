@@ -3,6 +3,7 @@
 //  Mudmouth
 //
 //  Created by devonly on 2025/08/12.
+//  Copyright © 2025 QuantumLeap, Corporation. All rights reserved.
 //
 
 import Foundation

@@ -3,6 +3,7 @@
 //  Mudmouth
 //
 //  Created by devonly on 2025/08/11.
+//  Copyright © 2025 QuantumLeap, Corporation. All rights reserved.
 //
 
 import Foundation
@@ -42,6 +43,13 @@ public enum MITM {
             SwiftyLogger.error("No options provided or missing password data")
             return
         }
+        guard let data: Data = options[NEVPNConnectionProxyTargets] as? Data,
+              let targets: [ProxyTarget] = try? decoder.decode([ProxyTarget].self, from: data)
+        else {
+            NSLog("No options provided or missing password data")
+            SwiftyLogger.error("No options provided or missing password data")
+            return
+        }
         NSLog("Interceptor: Starting server on port \(port)")
         ServerBootstrap(group: group)
             .serverChannelOption(ChannelOptions.backlog, value: 256)
@@ -55,7 +63,7 @@ public enum MITM {
                         NIOSSLServerHandler(context: keyPair.context),
                         ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)),
                         HTTPResponseEncoder(),
-                        ProxyHandler(),
+                        ProxyHandler(targets: targets),
                     ], position: .last,
                 )
             }

@@ -76,7 +76,7 @@ final class ConnectHandler: ChannelInboundHandler {
                                     }
 
                                 case let .failure(failure):
-                                    SwiftyLogger.error(failure.localizedDescription)
+                                    NSLog("Interceptor: Failed to connect to \(self.host!):\(self.port!): \(failure)")
                                     // Send 404 to downstream.
                                     let headers = HTTPHeaders([("Content-Length", "0")])
                                     let head = HTTPResponseHead(

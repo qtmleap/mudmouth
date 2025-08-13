@@ -24,12 +24,21 @@ final class ProxyHandler: NotificationHandler, ChannelDuplexHandler {
     typealias OutboundIn = HTTPClientResponsePart
     typealias OutboundOut = HTTPServerResponsePart
 
+    private let targets: [ProxyTarget]
+
+    init(targets: [ProxyTarget] = []) {
+        self.targets = targets
+    }
+
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let httpData = unwrapInboundIn(data)
         switch httpData {
             case let .head(head):
-                NSLog("Received request: \(head.uri)")
-                if head.uri == url.path {
+                if let host: String = head.host,
+                   let target: ProxyTarget = targets.first(where: { $0.host == host }),
+                   target.path == head.path
+                {
+                    NSLog("Received request: \(head)")
                     requests.append(.init(head: head))
                 }
                 context.fireChannelRead(wrapInboundOut(.head(head)))
@@ -56,21 +65,23 @@ final class ProxyHandler: NotificationHandler, ChannelDuplexHandler {
 
             case .end:
                 if let request: HTTP.Request = requests.popFirst() {
-                    SwiftyLogger.debug(request)
                     let headers = request.headers.base64EncodedString
+                    // BodyはGzipでエンコードされているので、デコードして返す
+                    // NOTE: エンコードされていないときは知らないです
                     let body = request.body.base64EncodedString
+                    let path = request.path
                     // データを処理して通知を送信し、アプリにデータを渡す
                     // NOTE: とりあえずヘッダーとレスポンスをBASE64でエンコードして全部返している
                     // このデータが有ればとりあえず困ることはなさそう
                     Task(priority: .background, operation: {
                         let content: UNMutableNotificationContent = .init()
-                        content.title = NSLocalizedString("TOKEN_CAPTURED_TITLE", bundle: .module, comment: "")
-                        content.body = NSLocalizedString("TOKEN_CAPTURED_BODY", bundle: .module, comment: "")
+                        content.title = NSLocalizedString("UNNOTIFICATION_REQUEST_TITLE", bundle: .module, comment: "")
+                        content.body = NSLocalizedString("UNNOTIFICATION_REQUEST_BODY", bundle: .module, comment: "")
                         content.userInfo = [
                             "headers": headers,
                             "body": body,
+                            "path": path,
                         ]
-                        SwiftyLogger.debug("Notification content: \(body)")
                         NSLog("Notification headers: \(headers)")
                         NSLog("Notification body: \(body)")
                         let triger: UNTimeIntervalNotificationTrigger = .init(timeInterval: 1, repeats: false)

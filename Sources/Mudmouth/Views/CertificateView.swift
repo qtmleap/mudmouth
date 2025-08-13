@@ -38,6 +38,8 @@ struct CertificateView: View {
                 })
                 LabeledContent(NSLocalizedString("CERTIFICATE_SHA256_HASH", bundle: .module, comment: ""), content: {
                     Text(manager.certificate.sha256Hash)
+                        .monospaced()
+                        .lineLimit(1)
                 })
                 LabeledContent(NSLocalizedString("PUBLIC_KEY_DATA", bundle: .module, comment: ""), content: {
                     Text(manager.privateKey.publicKey.derBytes.hexString)

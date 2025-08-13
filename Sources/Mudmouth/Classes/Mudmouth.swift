@@ -38,54 +38,19 @@ public final class Mudmouth {
         }
     }
 
-//    {
-//        didSet {
-//            SwiftyLogger.warning("Certificate updated, saving to keychain")
-//            try? keychain.setCertificate(newValue)
-//        }
-//    }
-
-//    /// CA秘密鍵
-//    private(set) var privateKey: Certificate.PrivateKey {
-//        get {
-//            guard let privateKey = try? keychain.getPrivateKey()
-//            else {
-//                SwiftyLogger.warning("No private key found, generating a new one")
-//                return .default
-//            }
-//            return privateKey
-//        }
-//        set {
-//            SwiftyLogger.warning("Setting new private key in keychain")
-//            try? keychain.setPrivateKey(newValue)
-//        }
-//    }
-//
-//    /// CA証明書
-//    @ObservationTracked
-//    private(set) var certificate: Certificate {
-//        get {
-//            guard let certificate = try? keychain.getCertificate()
-//            else {
-//                SwiftyLogger.warning("No certificate found, generating a new one")
-//                return try! .init(privateKey)
-//            }
-//            return certificate
-//        }
-//        set {
-//            SwiftyLogger.warning("Setting new certificate in keychain")
-//            try? keychain.setCertificate(newValue)
-//        }
-//    }
-
     private let keychain: Keychain = .init(server: "https://api.lp1.av5ja.srv.nintendo.net", protocolType: .https)
     private let port: Int = 16_836
     private let bundleIdentifier: String = "\(Bundle.main.bundleIdentifier!).packet-tunnel"
     private let generator: UINotificationFeedbackGenerator = .init()
     private var status: NEVPNStatus = .invalid
-
-    /// スプラトゥーン3のURLスキーム
-    private let url: URL = .init(unsafeString: "com.nintendo.znca://znca/game/4834290508791808")
+    /// パケットをキャプチャするドメインまとめ
+    private let targets: [ProxyTarget] = [
+        URL(string: "https://api.lp1.av5ja.srv.nintendo.net/")!, // Splatoon 3
+        URL(string: "https://app.splatoon2.nintendo.net/")!, // Splatoon 2
+        URL(string: "https://api.lp1.87abc152.srv.nintendo.net/")!, // Zelda Notes
+        URL(string: "https://web.sd.lp1.acbaa.srv.nintendo.net/")!, // NookLink
+        URL(string: "https://app.smashbros.nintendo.net/")!, // Smash World
+    ].map { .init(url: $0) }
 
     /// <#Description#>
     var isInstalled: Bool {
@@ -122,7 +87,7 @@ public final class Mudmouth {
     var isTrusted: Bool {
         SwiftyLogger.debug("Checking certificate trust")
         let url: URL = .init(unsafeString: "https://mudmouth.local")
-        let keyPair = generateSiteKeyPair(url: url)
+        let keyPair = generateSiteKeyPair(hosts: [url.host!])
         let der = keyPair.certificate.derRepresentation
         let secCertificate = SecCertificateCreateWithData(nil, der as CFData)!
         let policy = SecPolicyCreateSSL(true, url.host! as NSString)
@@ -165,16 +130,19 @@ public final class Mudmouth {
             SwiftyLogger.error("Interceptor: No VPN manager found")
             return
         }
-        let keyPair: KeyPair = generateSiteKeyPair(url: URL(unsafeString: "https://api.lp1.av5ja.srv.nintendo.net/api/bullet_tokens"))
+        SwiftyLogger.debug("Interceptor: Targets \(targets)")
+        // 今は実際にはここはほぼ利用していない
+        let keyPair: KeyPair = generateSiteKeyPair(hosts: targets.hosts)
         // VPN設定を有効化する
         manager.isEnabled = true
         // 何をしているのかはよくわからない
         try await manager.saveToPreferences()
         SwiftyLogger.debug("Interceptor: VPN Manager configured")
         SwiftyLogger.debug("Interceptor: Starting VPN Tunnel with options: \(keyPair)")
+        SwiftyLogger.debug("Interceptor: \(NEVPNConnectionStartOptionPassword)")
         // サイト用の証明書をパスワードに同梱し、アプリに渡す
         try manager.connection.startVPNTunnel(options: [
-            //            NEVPNConnectionStartOptionUsername: "Interceptor",
+            NEVPNConnectionProxyTargets: targets.data as NSObject,
             NEVPNConnectionStartOptionPassword: keyPair.data as NSObject,
         ])
         generator.notificationOccurred(.success)
@@ -194,6 +162,10 @@ public final class Mudmouth {
         })
     }
 
+    public func openURL(_ contentId: ContentId) {
+        UIApplication.shared.open(URL(unsafeString: "com.nintendo.znca://znca/game/\(contentId.rawValue)"))
+    }
+
     /// NOTE: アプリ起動時に証明書を発行する
     /// 多分失敗しないのであんまり気にしなくて大丈夫
     /// - Returns: <#description#>
@@ -207,14 +179,14 @@ public final class Mudmouth {
     /// <#Description#>
     /// - Parameter url: <#url description#>
     /// - Returns: <#description#>
-    private func generateSiteKeyPair(url: URL) -> KeyPair {
+    private func generateSiteKeyPair(hosts: [String]) -> KeyPair {
         // サイト用の鍵
         let caCertificateKey: Certificate.PrivateKey = .default
         let certificate: Certificate = try! .init(
             publicKey: caCertificateKey.publicKey,
             issuerPrivateKey: privateKey,
             issuer: certificate,
-            url: url,
+            hosts: hosts,
         )
         return .init(certificate: certificate, privateKey: caCertificateKey)
     }

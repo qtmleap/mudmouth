@@ -1,5 +1,5 @@
 //
-//  FirstLaunchView.swift
+//  ConfigurationView.swift
 //  Mudmouth
 //
 //  Created by devonly on 2025/08/11.
@@ -28,6 +28,7 @@ public struct ConfigurationView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var isPresented: Bool = false
     @State private var isEnabled: Bool = false
+    @State private var contentId: ContentId = .SP2
     private var proxy: X509Proxy = .default
 
     public init() {}
@@ -121,20 +122,30 @@ public struct ConfigurationView: View {
                         Label(NSLocalizedString("LABEL_TRUST_CERT", bundle: .module, comment: ""), systemImage: "checkmark.shield.fill")
                     })
                 })
-                Button(action: {
-                    UIApplication.shared.open(URL(string: "com.nintendo.znca://znca/game/4834290508791808")!)
-                }, label: {
-                    Label(NSLocalizedString("LABEL_OPEN", bundle: .module, comment: ""), systemImage: "link")
-                })
             }, header: {
                 Text("HEADER_CERT", bundle: .module)
             }, footer: {
                 Text("FOOTER_CERT", bundle: .module)
             })
-            Button(action: {
-                dismiss()
-            }, label: {
-                Text("LABEL_DONE", bundle: .module)
+            Section(content: {
+                Picker(selection: $contentId, content: {
+                    ForEach(ContentId.allCases, content: { contentId in
+                        Text(contentId.description)
+                            .tag(contentId)
+                    })
+                }, label: {
+                    Text("LABEL_GAME_CONTENT_ID", bundle: .module)
+                })
+                Button(action: {
+                    manager.openURL(contentId)
+                }, label: {
+                    Label(NSLocalizedString("LABEL_OPEN", bundle: .module, comment: ""), systemImage: "link")
+                })
+                Button(action: {
+                    dismiss()
+                }, label: {
+                    Text("LABEL_DONE", bundle: .module)
+                })
             })
         })
         .onChange(of: isEnabled, perform: { value in
