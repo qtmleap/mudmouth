@@ -137,12 +137,12 @@ It is assumed that the token response is encrypted with AES.
 }
 ```
 
-### [Animal Crossing New Horizon]()
+### [Animal Crossing New Horizon](https://web.sd.lp1.acbaa.srv.nintendo.net)
 
-|              |        | key     | expires in |
-| :----------: | :----: | :-----: | :--------: |
-| access token | Header | unknown | unknown    |
-| gtoken       | Header | gtoken  | 3 hours    |
+|              |        | key            | expires in |
+| :----------: | :----: | :------------: | :--------: |
+| access token | Header | unknown        | unknown    |
+| gtoken       | Header | X-GameWebToken | 3 hours    |
 
 ```json
 {
