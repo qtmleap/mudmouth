@@ -73,10 +73,10 @@ Mudmouth is a network diagnostic library for capturing requests securely on iOS.
 
 ### [Zelda Notes](https://api.lp1.87abc152.srv.nintendo.net/)
 
-|              |        | key      | expires in |
-| :----------: | :----: | :------: | :--------: |
-| access token | Body   | a5_token | unknown    |
-| gtoken       | Header | gtoken   | 3 hours    |
+|              |        | key            | expires in |
+| :----------: | :----: | :------------: | :--------: |
+| access token | Body   | a5_token       | unknown    |
+| gtoken       | Header | X-GameWebToken | 3 hours    |
 
 ```json
 {
@@ -138,6 +138,11 @@ It is assumed that the token response is encrypted with AES.
 ```
 
 ### [Animal Crossing New Horizon]()
+
+|              |        | key     | expires in |
+| :----------: | :----: | :-----: | :--------: |
+| access token | Header | unknown | unknown    |
+| gtoken       | Header | gtoken  | 3 hours    |
 
 ```json
 {
