@@ -56,6 +56,7 @@ public struct FirstLaunchView: View {
                         .frame(width: 128, height: 128)
                         .padding()
                     Text("DESCRIPTION_APP_NAME", bundle: .module)
+                        .frame(maxWidth: 400, alignment: .center)
                         .padding(.horizontal)
                 })
             })
@@ -70,6 +71,7 @@ public struct FirstLaunchView: View {
                         .frame(width: 128, height: 128)
                         .padding()
                     Text("DESCRIPTION_INSTALL_NINTENDO_APP", bundle: .module)
+                        .frame(maxWidth: 400, alignment: .center)
                         .padding(.horizontal)
                 })
             })
@@ -84,6 +86,7 @@ public struct FirstLaunchView: View {
                         .frame(width: 128, height: 128)
                         .padding()
                     Text("DESCRIPTION_ALLOW_NOTIFICATION", bundle: .module)
+                        .frame(maxWidth: 400, alignment: .center)
                         .padding(.horizontal)
                 })
             })
@@ -98,6 +101,7 @@ public struct FirstLaunchView: View {
                         .frame(width: 128, height: 128)
                         .padding()
                     Text("DESCRIPTION_DOWNLOAD_VPN_PROFILE", bundle: .module)
+                        .frame(maxWidth: 400, alignment: .center)
                         .padding(.horizontal)
                 })
             })
@@ -112,6 +116,8 @@ public struct FirstLaunchView: View {
                         .frame(width: 128, height: 128)
                         .padding()
                     Text("DESCRIPTION_INSTALL_VPN_PROFILE", bundle: .module)
+                        .frame(maxWidth: 400, alignment: .center)
+                        .padding(.horizontal)
                 })
             })
             .tag(4)
@@ -125,6 +131,7 @@ public struct FirstLaunchView: View {
                         .frame(width: 128, height: 128)
                         .padding()
                     Text("DESCRIPTION_TRUST_CERTIFICATE", bundle: .module)
+                        .frame(maxWidth: 400, alignment: .center)
                         .padding(.horizontal)
                 })
             })
@@ -139,6 +146,7 @@ public struct FirstLaunchView: View {
                         .frame(width: 128, height: 128)
                         .padding()
                     Text("DESCRIPTION_INSTALL_VPN", bundle: .module)
+                        .frame(maxWidth: 400, alignment: .center)
                         .padding(.horizontal)
                 })
             })
@@ -153,6 +161,7 @@ public struct FirstLaunchView: View {
                         .frame(width: 128, height: 128)
                         .padding()
                     Text("DESCRIPTION_TEST_TOGGLE_VPN", bundle: .module)
+                        .frame(maxWidth: 400, alignment: .center)
                         .padding(.horizontal)
                 })
             })
@@ -167,6 +176,7 @@ public struct FirstLaunchView: View {
                         .frame(width: 128, height: 128)
                         .padding()
                     Text("DESCRIPTION_TEST_OPEN_APP", bundle: .module)
+                        .frame(maxWidth: 400, alignment: .center)
                         .padding(.horizontal)
                 })
             })
@@ -197,21 +207,12 @@ public struct FirstLaunchView: View {
                                 .frame(width: 300, height: 40)
                         })
                     case 3:
-                        Group(content: {
-                            Button(action: {
-                                mudmouth.generateCAKeyPair()
-                            }, label: {
-                                Text("BUTTON_GENERATE_CERTIFICATE", bundle: .module)
-                                    .fontWeight(.bold)
-                                    .frame(width: 300, height: 40)
-                            })
-                            Button(action: {
-                                isPresented.toggle()
-                            }, label: {
-                                Text("BUTTON_DOWNLOAD_PROFILE", bundle: .module)
-                                    .fontWeight(.bold)
-                                    .frame(width: 300, height: 40)
-                            })
+                        Button(action: {
+                            isPresented.toggle()
+                        }, label: {
+                            Text("BUTTON_DOWNLOAD_PROFILE", bundle: .module)
+                                .fontWeight(.bold)
+                                .frame(width: 300, height: 40)
                         })
                     case 4:
                         Button(action: {

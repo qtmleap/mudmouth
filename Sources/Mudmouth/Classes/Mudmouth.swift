@@ -52,6 +52,7 @@ public final class Mudmouth {
     private let bundleIdentifier: String = "\(Bundle.main.bundleIdentifier!).packet-tunnel"
     private let generator: UINotificationFeedbackGenerator = .init()
     private let notificationCenter: UNUserNotificationCenter = .current()
+    private var timer: Timer?
     private var status: NEVPNStatus = .invalid
     /// パケットをキャプチャするドメインまとめ
     private let targets: [ProxyTarget] = [
@@ -103,6 +104,10 @@ public final class Mudmouth {
     private(set) var isTrusted: Bool = false {
         willSet {
             SwiftyLogger.debug("Interceptor: isTrusted changed from \(isTrusted) to \(newValue)")
+            // Trueになったら一旦タイマーを止める
+            if newValue {
+                stopTimer()
+            }
         }
     }
 
@@ -119,13 +124,19 @@ public final class Mudmouth {
     /// NOTE: isVPNInstalledを更新する
     /// NOTE: マネージャがそもそもなければどうなるんだ感はあるが、新しく作られまくる心配がない
     func installVPN() async throws {
-        manager?.localizedDescription = "Interceptor"
+        // 既に作成されていたら何もしない
+        if manager != nil {
+            return
+        }
+        let manager: NETunnelProviderManager = .init()
+        manager.localizedDescription = "Interceptor"
         let configuration: NETunnelProviderProtocol = .init()
         configuration.providerBundleIdentifier = bundleIdentifier
         configuration.serverAddress = "Interceptor"
-        manager?.protocolConfiguration = configuration
+        manager.protocolConfiguration = configuration
         SwiftyLogger.debug(configuration)
-        try await manager?.saveToPreferences()
+        try await manager.saveToPreferences()
+        self.manager = manager
     }
 
     /// ユーザーに通知の許可をリクエストする
@@ -255,18 +266,13 @@ public final class Mudmouth {
     @objc
     private func willEnterForegroundNotification() {
         SwiftyLogger.debug("Interceptor: WillEnterForegroundNotification")
-        /// 少し時間をおいてから実行しないとfalseになる
-        /// NOTE: 根本的な解決方法を模索したい
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
-            guard let self else { return }
-            isTrusted = getTrusted()
-        }
     }
 
     /// アプリがバックグラウンドになったときに呼ばれる
     @objc
     private func didEnterBackgroundNotification() {
         SwiftyLogger.debug("Interceptor: DidEnterBackgroundNotification")
+        stopTimer()
     }
 
     /// 起動時にも呼ばれる
@@ -283,11 +289,23 @@ public final class Mudmouth {
             self.manager = try await NETunnelProviderManager.loadAllFromPreferences().first
         })
         /// 少し時間をおいてから実行しないとfalseになる
+        /// NOTE: そもそも一回チェックしてもFalseになると無限にFalseになる
         /// NOTE: 根本的な解決方法を模索したい
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
-            guard let self else { return }
-            isTrusted = getTrusted()
-        }
+        startTimer()
+    }
+
+    private func startTimer() {
+        guard timer == nil else { return }
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { _ in
+            Task(priority: .background, operation: { @MainActor in
+                self.isTrusted = self.getTrusted()
+            })
+        })
+    }
+
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
     }
 }
 
@@ -324,19 +342,26 @@ extension Mudmouth {
     /// - Returns: <#description#>
     private func getTrusted() -> Bool {
         SwiftyLogger.debug("Checking if certificate is trusted")
-        let url: URL = .init(unsafeString: "https://mudmouth.local")
-        let keyPair = generateSiteKeyPair(hosts: [url.host!])
-        let der = keyPair.certificate.derRepresentation
-        let secCertificate = SecCertificateCreateWithData(nil, der as CFData)!
-        let policy = SecPolicyCreateSSL(true, url.host! as NSString)
+        let url: URL = .init(string: "http://localhost")!
+        guard let certificate = SecCertificateCreateWithData(nil, generateSiteKeyPair(hosts: [url.host!]).certificate.derRepresentation as CFData)
+        else {
+            SwiftyLogger.error("Failed to create certificate from DER representation")
+            return false
+        }
         var trust: SecTrust?
-        let status = SecTrustCreateWithCertificates(secCertificate, policy, &trust)
-        SwiftyLogger.debug("Interceptor: SecTrustCreateWithCertificates status: \(status)")
+        let policy = SecPolicyCreateSSL(true, url.host! as NSString)
+        let status = SecTrustCreateWithCertificates(certificate, policy, &trust)
         guard status == errSecSuccess, let trust else {
             return false
         }
         var error: CFError?
         return SecTrustEvaluateWithError(trust, &error)
+//        if SecTrustCreateWithCertificates(certificate, SecPolicyCreateSSL(true, url.host! as NSString), &secTrust) == errSecSuccess, let trust = secTrust {
+//            SecTrustEvaluateAsyncWithError(trust, .main, { trust, result, error in
+//                print(trust, result ,error)
+//                return result
+//            })
+//        }
     }
 
     /// 通知が許可されているかをチェックする

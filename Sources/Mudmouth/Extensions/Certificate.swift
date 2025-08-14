@@ -68,13 +68,16 @@ public extension Certificate {
             Critical(BasicConstraints.isCertificateAuthority(maxPathLength: nil))
             Critical(KeyUsage(digitalSignature: true, keyCertSign: true))
         })
+        let calendar = Calendar.current
+        let notValidBefore = calendar.startOfDay(for: .now)
+        let notValidAfter = calendar.date(byAdding: .day, value: 2 * 365, to: notValidBefore)!
         // 自己署名CA証明書
         try self.init(
             version: .v3,
             serialNumber: .default,
             publicKey: privateKey.publicKey,
-            notValidBefore: .now,
-            notValidAfter: .now.addingTimeInterval(60 * 60 * 24 * 365 * 10),
+            notValidBefore: notValidBefore,
+            notValidAfter: notValidAfter,
             issuer: name,
             subject: name,
             signatureAlgorithm: .ecdsaWithSHA256,
@@ -106,12 +109,15 @@ public extension Certificate {
             SubjectAlternativeNames(hosts.map { .dnsName($0) })
         })
         SwiftyLogger.debug("Verify: \(issuer.isValid(privateKey: issuerPrivateKey))")
+        let calendar = Calendar.current
+        let notValidBefore = calendar.startOfDay(for: .now)
+        let notValidAfter = calendar.date(byAdding: .day, value: 2 * 365, to: notValidBefore)!
         try! self.init(
             version: .v3,
             serialNumber: .init(),
             publicKey: publicKey,
-            notValidBefore: .now,
-            notValidAfter: .now.addingTimeInterval(60 * 60 * 24 * 365 * 2),
+            notValidBefore: notValidBefore,
+            notValidAfter: notValidAfter,
             issuer: issuer.subject,
             subject: siteSubject,
             signatureAlgorithm: .ecdsaWithSHA256,
