@@ -10,10 +10,10 @@ import Foundation
 
 public extension String {
     var base64DecodedString: String? {
-        guard let data: Data = .init(base64Encoded: self)
-        else {
-            return nil
+        let formatedString: String = self + Array(repeating: "=", count: count % 4).joined()
+        if let data = Data(base64Encoded: formatedString, options: [.ignoreUnknownCharacters]) {
+            return String(data: data, encoding: .utf8)
         }
-        return String(data: data, encoding: .utf8)
+        return nil
     }
 }
