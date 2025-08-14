@@ -114,7 +114,7 @@ It is assumed that the token response is encrypted with AES.
 |              |        | key               | expires in |
 | :----------: | :----: | :---------------: | :--------: |
 | access token | Header | super_smash_token | unknown    |
-| gtoken       | Header | gtoken            | 3 hours    |
+| gtoken       | Header | X-GameWebToken    | 3 hours    |
 
 ```json
 {
