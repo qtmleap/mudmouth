@@ -137,6 +137,29 @@ It is assumed that the token response is encrypted with AES.
 }
 ```
 
+### [Animal Crossing New Horizon]()
+
+```json
+{
+   "isChildRestricted": false,
+   "aud": "6699641390694400",
+   "exp": 1755139096,
+   "iat": 1755128296,
+   "iss": "api-lp1.znc.srv.nintendo.net",
+   "jti": "55dca1e7-f183-4ff8-abdb-89d6768fc617",
+   "sub": 4737360831381504,
+   "links": {
+       "networkServiceAccount": {
+           "id": "3f89c3791c43ea57"
+       }
+   },
+   "typ": "id_token",
+   "membership": {
+       "active": true
+   }
+}
+```
+
 ## Contributors
 
 - [zhxie](https://github.com/zhxie)
