@@ -197,12 +197,21 @@ public struct FirstLaunchView: View {
                                 .frame(width: 300, height: 40)
                         })
                     case 3:
-                        Button(action: {
-                            isPresented.toggle()
-                        }, label: {
-                            Text("BUTTON_DOWNLOAD_PROFILE", bundle: .module)
-                                .fontWeight(.bold)
-                                .frame(width: 300, height: 40)
+                        Group(content: {
+                            Button(action: {
+                                mudmouth.generateCAKeyPair()
+                            }, label: {
+                                Text("BUTTON_GENERATE_CERTIFICATE", bundle: .module)
+                                    .fontWeight(.bold)
+                                    .frame(width: 300, height: 40)
+                            })
+                            Button(action: {
+                                isPresented.toggle()
+                            }, label: {
+                                Text("BUTTON_DOWNLOAD_PROFILE", bundle: .module)
+                                    .fontWeight(.bold)
+                                    .frame(width: 300, height: 40)
+                            })
                         })
                     case 4:
                         Button(action: {

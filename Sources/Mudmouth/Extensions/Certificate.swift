@@ -91,29 +91,6 @@ public extension Certificate {
     ///   - url: target URL
     init(publicKey: Certificate.PublicKey, issuerPrivateKey: Certificate.PrivateKey, issuer: Certificate, host: String) throws {
         try! self.init(publicKey: publicKey, issuerPrivateKey: issuerPrivateKey, issuer: issuer, hosts: [host])
-//        let siteSubject: DistinguishedName = try! .init(builder: { CommonName("Interceptor")
-//            OrganizationName("NEVER KNOWS BEST")
-//        })
-//        let extensions = try! Certificate.Extensions(builder: {
-//            Critical(BasicConstraints.isCertificateAuthority(maxPathLength: nil))
-//            Critical(KeyUsage(digitalSignature: true, keyCertSign: true))
-//            try! ExtendedKeyUsage([.serverAuth, .ocspSigning])
-//            SubjectKeyIdentifier(hash: publicKey)
-//            SubjectAlternativeNames([.dnsName(url.host!)])
-//        })
-//        SwiftyLogger.debug("Verify: \(issuer.isValid(privateKey: issuerPrivateKey))")
-//        try! self.init(
-//            version: .v3,
-//            serialNumber: .init(),
-//            publicKey: publicKey,
-//            notValidBefore: .now,
-//            notValidAfter: .now.addingTimeInterval(60 * 60 * 24 * 365 * 2),
-//            issuer: issuer.subject,
-//            subject: siteSubject,
-//            signatureAlgorithm: .ecdsaWithSHA256,
-//            extensions: extensions,
-//            issuerPrivateKey: issuerPrivateKey,
-//        )
     }
 
     init(publicKey: Certificate.PublicKey, issuerPrivateKey: Certificate.PrivateKey, issuer: Certificate, hosts: [String]) throws {

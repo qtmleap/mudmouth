@@ -45,7 +45,9 @@ public final class Mudmouth {
         }
     }
 
-    private let keychain: Keychain = .init(server: "https://api.lp1.av5ja.srv.nintendo.net", protocolType: .https)
+    // iCloud Keychainを利用する
+    // NOTE: ライブラリを利用するアプリのバンドルIDで初期化
+    private let keychain: Keychain = .init(service: Bundle.main.bundleIdentifier!).synchronizable(true)
     private let port: Int = 16_836
     private let bundleIdentifier: String = "\(Bundle.main.bundleIdentifier!).packet-tunnel"
     private let generator: UINotificationFeedbackGenerator = .init()

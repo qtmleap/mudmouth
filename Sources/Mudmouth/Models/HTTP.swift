@@ -13,14 +13,14 @@ import NIOHTTP1
 
 // MARK: - HTTP
 
-enum HTTP {
-    typealias Parameters = [Parameter]
+public enum HTTP {
+    public typealias Parameters = [Parameter]
 
-    struct Parameter: Codable {
-        let key: String
-        let value: String
+    public struct Parameter: Codable {
+        public let key: String
+        public let value: String
 
-        init?(key: String, value: String) {
+        public init?(key: String, value: String) {
             self.key = key
             self.value = value
         }

@@ -71,6 +71,9 @@
         }
       }
     },
+    "BUTTON_GENERATE_CERTIFICATE" : {
+
+    },
     "BUTTON_INSTALL_VPN" : {
       "localizations" : {
         "ja" : {

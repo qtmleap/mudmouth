@@ -20,7 +20,7 @@ public class X509Proxy: ChannelInboundHandler, @unchecked Sendable {
     public typealias InboundIn = HTTPServerRequestPart
     public typealias OutboundOut = HTTPServerResponsePart
 
-    private let keychain: Keychain = .init(server: "https://api.lp1.av5ja.srv.nintendo.net", protocolType: .https)
+    private let keychain: Keychain = .init(service: Bundle.main.bundleIdentifier!)
     private let port: Int = 8_888
     public var url: URL {
         .init(string: "http://127.0.0.1:\(port)")!
