@@ -41,6 +41,8 @@ final class ProxyHandler: NotificationHandler, ChannelDuplexHandler {
                     NSLog("Received request: \(head)")
                     requests.append(.init(head: head))
                 }
+                if let host: String = head.host,
+                   let target: ProxyTarget = targets.first(where: { $0.host == host }) {}
                 context.fireChannelRead(wrapInboundOut(.head(head)))
 
             case let .body(body):

@@ -19,7 +19,6 @@ import SwiftUI
 import SwiftyLogger
 import UniformTypeIdentifiers
 import X509
-import SwiftUI
 
 @MainActor
 @Observable
@@ -67,15 +66,15 @@ public final class Mudmouth {
         URL(string: "https://app.smashbros.nintendo.net/")!, // Smash World
         URL(string: "https://web.sd.lp1.acbaa.srv.nintendo.net/")!, // NookLink
     ].map { .init(url: $0) }
-    
+
     /// 起動時にVPNを有効化するかどうか
 //    @AppStorage("ACTIVATE_ON_LAUNCH", store: .standard)
 //    var activateOnLaunch: Bool = false
-    
+
     @ObservationIgnored
     @AppStorage("ACTIVATE_ON_FOREGROUND", store: .standard)
     public var activateOnForeground: Bool = true
-    
+
     /// Nintendo Switch Appがインストールされているかどうか
     /// NOTE: 一度アプリがバックグラウンドになるので、フォアグラウンドになったときにチェックすれば良い
     private(set) var isAPPInstalled: Bool = false {

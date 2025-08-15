@@ -21,4 +21,5 @@ import UserNotifications
 //    }
 // }
 //
+
 extension UNNotificationSettings: @unchecked Sendable {}

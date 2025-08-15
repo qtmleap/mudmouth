@@ -72,6 +72,12 @@ extension HTTPRequestHead {
     }
 }
 
+extension HTTPHeaders {
+    var data: Data {
+        try! JSONSerialization.data(withJSONObject: self)
+    }
+}
+
 extension HTTP.Parameters {
     var base64EncodedString: String {
         let encoder: JSONEncoder = .init()
