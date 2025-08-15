@@ -173,6 +173,8 @@ public final class Mudmouth {
         SwiftyLogger.debug("Interceptor: Starting VPN Tunnel with options: \(keyPair)")
         SwiftyLogger.debug("Interceptor: \(NEVPNConnectionStartOptionPassword)")
         // サイト用の証明書をパスワードに同梱し、アプリに渡す
+        // ついでにターゲット情報も渡す
+        // ターゲットに合致したときにキャプチャしたパケットを渡す仕組み
         try manager.connection.startVPNTunnel(options: [
             NEVPNConnectionProxyTargets: targets.data as NSObject,
             NEVPNConnectionStartOptionPassword: keyPair.data as NSObject,
@@ -194,6 +196,9 @@ public final class Mudmouth {
         })
     }
 
+    /// 指定されたNintendo Switch Appのコンテンツを開く
+    /// NOTE: イカリング3とタヌポータルしか効かない
+    /// - Parameter contentId: <#contentId description#>
     public func openURL(_ contentId: ContentId) {
         UIApplication.shared.open(URL(unsafeString: "com.nintendo.znca://znca/game/\(contentId.rawValue)"))
     }
@@ -272,7 +277,7 @@ public final class Mudmouth {
     @objc
     private func didEnterBackgroundNotification() {
         SwiftyLogger.debug("Interceptor: DidEnterBackgroundNotification")
-        stopTimer()
+//        stopTimer()
     }
 
     /// 起動時にも呼ばれる
@@ -282,6 +287,7 @@ public final class Mudmouth {
         SwiftyLogger.debug("Interceptor: DidBecomeActiveNotification")
         isAPPInstalled = getAppInstalled()
         isVerified = getVerified()
+        isTrusted = getTrusted()
         Task(priority: .background, operation: {
             self.isAuthorized = try await getAuthorized()
             /// VPN設定を読み込んでマネージャをロードする
@@ -291,7 +297,7 @@ public final class Mudmouth {
         /// 少し時間をおいてから実行しないとfalseになる
         /// NOTE: そもそも一回チェックしてもFalseになると無限にFalseになる
         /// NOTE: 根本的な解決方法を模索したい
-        startTimer()
+//        startTimer()
     }
 
     private func startTimer() {
@@ -339,6 +345,8 @@ extension Mudmouth {
     /// 証明書が信頼されているかどうかをチェックする
     /// NOTE: 少し時間を置かないとチェックされない
     /// NOTE: 別のトリガーを用意したほうがいい気もする
+    /// NOTE: 発行してすぐの証明書は時間の関係でnotValidBeforeがtrueになってしまうのが原因
+    /// NOTE: めんどくさいのでその日の00:00:00をnotValidBeforeに設定しているので、相当タイミングが悪くないと一回も失敗しないはず
     /// - Returns: <#description#>
     private func getTrusted() -> Bool {
         SwiftyLogger.debug("Checking if certificate is trusted")
@@ -356,12 +364,6 @@ extension Mudmouth {
         }
         var error: CFError?
         return SecTrustEvaluateWithError(trust, &error)
-//        if SecTrustCreateWithCertificates(certificate, SecPolicyCreateSSL(true, url.host! as NSString), &secTrust) == errSecSuccess, let trust = secTrust {
-//            SecTrustEvaluateAsyncWithError(trust, .main, { trust, result, error in
-//                print(trust, result ,error)
-//                return result
-//            })
-//        }
     }
 
     /// 通知が許可されているかをチェックする
