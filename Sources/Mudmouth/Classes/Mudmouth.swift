@@ -19,6 +19,7 @@ import SwiftUI
 import SwiftyLogger
 import UniformTypeIdentifiers
 import X509
+import SwiftUI
 
 @MainActor
 @Observable
@@ -66,7 +67,15 @@ public final class Mudmouth {
         URL(string: "https://app.smashbros.nintendo.net/")!, // Smash World
         URL(string: "https://web.sd.lp1.acbaa.srv.nintendo.net/")!, // NookLink
     ].map { .init(url: $0) }
-
+    
+    /// 起動時にVPNを有効化するかどうか
+//    @AppStorage("ACTIVATE_ON_LAUNCH", store: .standard)
+//    var activateOnLaunch: Bool = false
+    
+    @ObservationIgnored
+    @AppStorage("ACTIVATE_ON_FOREGROUND", store: .standard)
+    public var activateOnForeground: Bool = true
+    
     /// Nintendo Switch Appがインストールされているかどうか
     /// NOTE: 一度アプリがバックグラウンドになるので、フォアグラウンドになったときにチェックすれば良い
     private(set) var isAPPInstalled: Bool = false {
@@ -85,7 +94,7 @@ public final class Mudmouth {
 
     /// VPNに接続されているかどうか
     /// NOTE: VPNの状態が変更されたときにチェックすれば良い
-    private(set) var isConnected: Bool = false {
+    public private(set) var isConnected: Bool = false {
         willSet {
             SwiftyLogger.debug("Interceptor: isConnected changed from \(isConnected) to \(newValue)")
         }
@@ -105,9 +114,9 @@ public final class Mudmouth {
         willSet {
             SwiftyLogger.debug("Interceptor: isTrusted changed from \(isTrusted) to \(newValue)")
             // Trueになったら一旦タイマーを止める
-            if newValue {
-                stopTimer()
-            }
+//            if newValue {
+//                stopTimer()
+//            }
         }
     }
 
@@ -298,21 +307,26 @@ public final class Mudmouth {
         /// NOTE: そもそも一回チェックしてもFalseになると無限にFalseになる
         /// NOTE: 根本的な解決方法を模索したい
 //        startTimer()
-    }
-
-    private func startTimer() {
-        guard timer == nil else { return }
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { _ in
-            Task(priority: .background, operation: { @MainActor in
-                self.isTrusted = self.getTrusted()
+        if activateOnForeground {
+            Task(priority: .background, operation: {
+                try await self.startVPNTunnel()
             })
-        })
+        }
     }
 
-    private func stopTimer() {
-        timer?.invalidate()
-        timer = nil
-    }
+//    private func startTimer() {
+//        guard timer == nil else { return }
+//        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { _ in
+//            Task(priority: .background, operation: { @MainActor in
+//                self.isTrusted = self.getTrusted()
+//            })
+//        })
+//    }
+//
+//    private func stopTimer() {
+//        timer?.invalidate()
+//        timer = nil
+//    }
 }
 
 extension Mudmouth {
