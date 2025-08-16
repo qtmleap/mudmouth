@@ -18,10 +18,10 @@ class NotificationHandler {
         let content: UNMutableNotificationContent = .init()
         content.title = NSLocalizedString("TOKEN_CAPTURED_TITLE", bundle: .module, comment: "")
         content.body = NSLocalizedString("TOKEN_CAPTURED_BODY", bundle: .module, comment: "")
-        content.userInfo = [
-            "headers": request.headers.base64EncodedString,
-            "body": request.body.base64EncodedString,
-        ]
+//        content.userInfo = [
+//            "headers": request.headers.base64EncodedString,
+//            "body": request.body.base64EncodedString,
+//        ]
         let triger: UNTimeIntervalNotificationTrigger = .init(timeInterval: 1, repeats: false)
         let request: UNNotificationRequest = .init(
             identifier: UUID().uuidString, content: content, trigger: triger,

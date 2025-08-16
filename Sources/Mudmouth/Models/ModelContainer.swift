@@ -19,7 +19,7 @@ public extension ModelContainer {
         }
 
         let dbURL: URL = container.appendingPathComponent("Mudmouth.sqlite")
-        // #if DEBUG
+//         #if DEBUG
 //        // デバッグビルド時に永続ストアをリセット
 //        let fileManager = FileManager.default
 //        if fileManager.fileExists(atPath: dbURL.path) {
@@ -30,7 +30,7 @@ public extension ModelContainer {
 //                fatalError("Failed to reset persistent store: \(error)")
 //            }
 //        }
-        // #endif
+//         #endif
         let config: ModelConfiguration = .init(url: dbURL)
         return try! ModelContainer(for: RecordGroup.self, Record.self, configurations: config)
     }()
