@@ -15,13 +15,21 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
-### ios custom_lane
+### ios beta
 
 ```sh
-[bundle exec] fastlane ios custom_lane
+[bundle exec] fastlane ios beta
 ```
 
-Description of what the lane does
+Push a new beta build to TestFlight
+
+### ios fetch_testflight_profile
+
+```sh
+[bundle exec] fastlane ios fetch_testflight_profile
+```
+
+Fetch TestFlight profile and cert
 
 ----
 
