@@ -13,6 +13,7 @@ import NIOHTTP1
 import NIOPosix
 import NIOSSL
 import OSLog
+import SwiftData
 import SwiftyLogger
 import UserNotifications
 
@@ -42,7 +43,21 @@ final class ProxyHandler: NotificationHandler, ChannelDuplexHandler {
                     requests.append(.init(head: head))
                 }
                 if let host: String = head.host,
-                   let target: ProxyTarget = targets.first(where: { $0.host == host }) {}
+                   let target: ProxyTarget = targets.first(where: { $0.host == host })
+                {
+                    Task(operation: { @MainActor in
+                        do {
+                            let context: ModelContext = ModelContainer.default.mainContext
+                            let record: Record = .init(head: head)
+                            context.insert(record)
+                            context.insert(RecordGroup(host: host, records: [record]))
+                            try context.save()
+                            NSLog("Model Context: Saved request for \(host) at path \(head.path)")
+                        } catch {
+                            NSLog("Model Context: \(error)")
+                        }
+                    })
+                }
                 context.fireChannelRead(wrapInboundOut(.head(head)))
 
             case let .body(body):

@@ -74,7 +74,8 @@ extension HTTPRequestHead {
 
 extension HTTPHeaders {
     var data: Data {
-        try! JSONSerialization.data(withJSONObject: self)
+        let dictionary: Dictionary = .init(uniqueKeysWithValues: map { ($0.name, $0.value) })
+        return try! JSONSerialization.data(withJSONObject: dictionary)
     }
 }
 
