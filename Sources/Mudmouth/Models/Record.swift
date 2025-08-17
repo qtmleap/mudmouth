@@ -42,6 +42,14 @@ public final class Record: Identifiable {
         request = container.request
         response = container.response
     }
+    
+    init(method: HTTPMethod, path: String, request: HTTP.Request, response: HTTP.Response) {
+        id = .init()
+        self.method = method.rawValue
+        self.path = path
+        self.request = request
+        self.response = response
+    }
 }
 
 public enum HTTP {
@@ -154,40 +162,6 @@ public extension HTTP.Message {
     }
 }
 
-// @Model
-// public final class Record: Identifiable {
-//    @Attribute(.unique) public var id: UUID
-//    public var method: String
-//    public var path: String
-//    public var host: RecordGroup?
-//    @Relationship(deleteRule: .cascade)
-//    var request: Request
-//    @Relationship(deleteRule: .cascade)
-//    var response: Response
-//
-//    init(request: Request, response: Response) {
-//        self.id = .init()
-//        self.method = request.method
-//        self.path = request.path
-//        self.request = request
-//        self.response = response
-//    }
-
-//    public var headers: [HTTPHeader] {
-//        guard let headers = try? JSONSerialization.jsonObject(with: _headers) as? [String: String]
-//        else {
-//            return []
-//        }
-//        return headers.map { .init(key: $0.key, value: $0.value) }.sorted(by: { $0.key < $1.key })
-//    }
-//
-//    public var body: [String: Any]? {
-//        guard let data = _body else { return nil }
-//        return (try? JSONSerialization.jsonObject(with: data, options: [])) as? [String: Any]
-//    }
-// }
-//
-
 public struct HTTPHeader: Identifiable, Hashable {
     public var id: String { key }
     public let key: String
@@ -204,35 +178,17 @@ extension HTTPHeaders {
     }
 }
 
-// extension HTTP.Headers { public var values: [HTTPHeader] {
-//        map { ($0.key, $0.value) }.sorted(by: { $0.0 < $1.0 })
-//    }
-// }
-
-// extension HTTPRequestHead {
-//    var dictionaryObject: Parameters {
-//        headers.compactMap { .init(key: $0.name, value: $0.value) }
-//    }
-// }
-//
-// extension HTTPResponseHead {
-//    var dictionaryObject: Parameters {
-//        headers.compactMap { .init(key: $0.name, value: $0.value) }
-//    }
-// }
-//
-// extension HTTPHeaders {
-//    var data: Data {
-//        let dictionary: Dictionary = .init(uniqueKeysWithValues: map { ($0.name, $0.value) })
-//        return try! JSONSerialization.data(withJSONObject: dictionary)
-//    }
-// }
-//
-// extension Parameters {
-//    var base64EncodedString: String {
-//        let encoder: JSONEncoder = .init()
-//        // swiftlint:disable:next force_try
-//        return try! encoder.encode(self).base64EncodedString()
-//    }
-// }
-//
+extension RecordGroup {
+    public convenience init() {
+        let headers: HTTPHeaders = .init([
+            ("Host", "http://localhost/"),
+            ("Content-Type", "application/json"),
+        ])
+        self.init(host: "localhost", records: [
+            .init(method: .GET, path: "/", request: .init(head: .init(version: .http3, method: .GET, uri: "http://localhost/", headers: headers)), response: .init(head: .init(version: .http3, status: .ok))),
+            .init(method: .POST, path: "/", request: .init(head: .init(version: .http3, method: .POST, uri: "http://localhost/", headers: headers)), response: .init(head: .init(version: .http3, status: .ok))),
+            .init(method: .PATCH, path: "/", request: .init(head: .init(version: .http3, method: .PATCH, uri: "http://localhost/", headers: headers)), response: .init(head: .init(version: .http3, status: .ok))),
+            .init(method: .PUT, path: "/", request: .init(head: .init(version: .http3, method: .PUT, uri: "http://localhost/", headers: headers)), response: .init(head: .init(version: .http3, status: .ok))),
+        ])
+    }
+}
