@@ -8,11 +8,13 @@
 
 import SwiftUI
 
-struct CertificateView: View {
+public struct CertificateView: View {
     @Environment(Mudmouth.self) private var manager
     @State private var isPresented: Bool = false
 
-    var body: some View {
+    public init() {}
+
+    public var body: some View {
         Form(content: {
             Section(content: {
                 LabeledContent(NSLocalizedString("ORGANIZATION", bundle: .module, comment: ""), content: {
@@ -51,11 +53,23 @@ struct CertificateView: View {
                         .monospaced()
                         .lineLimit(1)
                 })
-                LabeledContent(NSLocalizedString("CERTIFICATE_VARIDATION", bundle: .module, comment: ""), content: {
-                    CheckStatus(manager.certificate.isValid(privateKey: manager.privateKey))
-                })
             }, header: {
                 Text("HEADER_KEY_INFORMATION", bundle: .module)
+            })
+            Section(content: {
+                LabeledContent(NSLocalizedString("CERTIFICATE_VERIFIED", bundle: .module, comment: ""), content: {
+                    CheckStatus(manager.certificate.isValid(privateKey: manager.privateKey))
+                })
+                LabeledContent(NSLocalizedString("CERTIFICATE_INSTALLED", bundle: .module, comment: ""), content: {
+                    CheckStatus(manager.isVerified)
+                })
+                LabeledContent(NSLocalizedString("CERTIFICATE_TRUSTED", bundle: .module, comment: ""), content: {
+                    CheckStatus(manager.isTrusted)
+                })
+            }, header: {
+                Text("HEADER_CERTIFICATE_VALIDATION", bundle: .module)
+            }, footer: {
+                Text("FOOTER_CERTIFICATE_VALIDATION", bundle: .module)
             })
             Section(content: {
                 Button(action: {
@@ -77,10 +91,14 @@ struct CertificateView: View {
                 Text("HEADER_CERTIFICATE_UTILS", bundle: .module)
             })
         })
+        .navigationTitle(Text("TITLE_CERTIFICATE"))
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
-    CertificateView()
-        .environment(Mudmouth())
+    NavigationView(content: {
+        CertificateView()
+    })
+    .environment(Mudmouth.default)
 }

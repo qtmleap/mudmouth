@@ -131,6 +131,16 @@
         }
       }
     },
+    "CERTIFICATE_INSTALLED" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "インストール"
+          }
+        }
+      }
+    },
     "CERTIFICATE_SHA256_HASH" : {
       "localizations" : {
         "ja" : {
@@ -141,7 +151,17 @@
         }
       }
     },
-    "CERTIFICATE_VARIDATION" : {
+    "CERTIFICATE_TRUSTED" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼"
+          }
+        }
+      }
+    },
+    "CERTIFICATE_VERIFIED" : {
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -316,6 +336,16 @@
         }
       }
     },
+    "FOOTER_CERTIFICATE_VALIDATION" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全ての項目が有効になっていないとリクエストを正しくキャプチャすることができません。"
+          }
+        }
+      }
+    },
     "FOOTER_NSO" : {
       "localizations" : {
         "ja" : {
@@ -370,6 +400,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "証明書ツール"
+          }
+        }
+      }
+    },
+    "HEADER_CERTIFICATE_VALIDATION" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "証明書の検証"
           }
         }
       }
@@ -658,6 +698,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "本アプリについて"
+          }
+        }
+      }
+    },
+    "TITLE_CERTIFICATE" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "証明書情報"
           }
         }
       }

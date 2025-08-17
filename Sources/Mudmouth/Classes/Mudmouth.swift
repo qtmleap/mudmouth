@@ -45,6 +45,7 @@ public final class Mudmouth {
         }
     }
 
+    public static let `default`: Mudmouth = .init()
     // iCloud Keychainを利用する
     // NOTE: ライブラリを利用するアプリのバンドルIDで初期化
     private let keychain: Keychain = .init(service: Bundle.main.bundleIdentifier!).synchronizable(true)
@@ -237,7 +238,7 @@ public final class Mudmouth {
         return .init(certificate: certificate, privateKey: caCertificateKey)
     }
 
-    public init() {
+    private init() {
         #if DEBUG || targetEnvironment(simulator)
         SwiftyLogger.debug("Mudmouth: Initializing in DEBUG mode")
         #else

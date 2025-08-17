@@ -315,5 +315,5 @@ struct FirstLaunch<Content: View>: View {
 #Preview {
     FirstLaunchView()
         .environment(\.locale, .init(identifier: "ja"))
-        .environment(Mudmouth())
+        .environment(Mudmouth.default)
 }
