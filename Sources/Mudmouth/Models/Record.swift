@@ -42,7 +42,7 @@ public final class Record: Identifiable {
         request = container.request
         response = container.response
     }
-    
+
     init(method: HTTPMethod, path: String, request: HTTP.Request, response: HTTP.Response) {
         id = .init()
         self.method = method.rawValue
@@ -178,8 +178,8 @@ extension HTTPHeaders {
     }
 }
 
-extension RecordGroup {
-    public convenience init() {
+public extension RecordGroup {
+    convenience init() {
         let headers: HTTPHeaders = .init([
             ("Host", "http://localhost/"),
             ("Content-Type", "application/json"),
