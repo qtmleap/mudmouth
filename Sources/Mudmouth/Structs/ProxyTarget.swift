@@ -25,6 +25,62 @@ public struct ProxyTarget: Codable {
     }
 }
 
+@Observable
+public final class ProxyOption: Codable, Identifiable {
+    public var id: String { host }
+    /// ホスト
+    public var host: String
+    /// パス
+    public var paths: [ProxyPath]
+    /// キャプチャするかどうか
+    public var capture: Bool
+    /// キャプチャ時に通知するかどうか
+    public var notify: Bool
+    /// スクリプト
+    public var script: String?
+
+    public init(host: String, paths: [ProxyPath], capture: Bool = true, notify: Bool = true, script: String? = nil) {
+        self.host = host
+        self.paths = paths
+        self.capture = capture
+        self.notify = notify
+        self.script = script
+    }
+
+    /// 条件がtrueになるパスを取得する
+    /// NOTE: 面白い書き方だなって
+    func targets(keyPath: KeyPath<ProxyPath, Bool>) -> [String] {
+        paths.filter { $0[keyPath: keyPath] }.map(\.path)
+    }
+}
+
+public struct ProxyPath: Codable, Identifiable {
+    public var id: String { path }
+    public var path: String
+    /// パスごとの通知設定
+    public var notify: Bool
+    public var capture: Bool
+
+    public init(path: String, capture: Bool = true, notify: Bool = true) {
+        self.path = path
+        self.capture = capture
+        self.notify = notify
+    }
+}
+
+extension [ProxyOption] {
+    /// キャプチャする設定のオプションだけをエンコードして渡す
+    var data: Data {
+        let encoder: JSONEncoder = .init()
+        return try! encoder.encode(filter(\.capture))
+    }
+
+    /// ホストを取得する
+    func targets(keyPath: KeyPath<ProxyOption, Bool>) -> [String] {
+        filter { $0[keyPath: keyPath] }.map(\.host)
+    }
+}
+
 extension [ProxyTarget] {
     var hosts: [String] {
         map(\.host)

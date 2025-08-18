@@ -802,7 +802,7 @@
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "タップでアプリを開いて処理を実行します"
           }
         }
@@ -818,7 +818,7 @@
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "レスポンスを取得しました"
           }
         }
@@ -826,6 +826,12 @@
     },
     "UNNOTIFICATION_REQUEST_BODY" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タップでアプリを開いて処理を実行します"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -836,6 +842,12 @@
     },
     "UNNOTIFICATION_REQUEST_TITLE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "レスポンスを取得しました"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",

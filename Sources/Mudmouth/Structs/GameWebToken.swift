@@ -18,7 +18,6 @@ public struct GameWebToken: Codable, Sendable {
         if values.count < 3 {
             throw NSError(domain: "GameWebToken", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid JWT format"])
         }
-        print(values.map(\.base64DecodedString))
         let data: [Data] = values.compactMap(\.base64DecodedString).compactMap { $0.data(using: .utf8) }
         let decoder: JSONDecoder = .init()
         decoder.dateDecodingStrategy = .secondsSince1970

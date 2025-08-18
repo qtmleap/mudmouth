@@ -25,14 +25,12 @@ final class ProxyHandler: NotificationHandler, ChannelDuplexHandler {
     typealias OutboundIn = HTTPClientResponsePart
     typealias OutboundOut = HTTPServerResponsePart
 
-    private let targets: [ProxyTarget]
+    private let options: [ProxyOption]
 
-    init(targets: [ProxyTarget] = []) {
-        self.targets = targets
+    init(options: [ProxyOption] = []) {
+        self.options = options
     }
 
-//    private var request: HTTP.Request?
-//    private var response: HTTP.Response?
     private var queues: Deque<HTTP.MessageContainer> = []
 
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
@@ -99,13 +97,39 @@ final class ProxyHandler: NotificationHandler, ChannelDuplexHandler {
 
             case .end:
                 if let queue = queues.popFirst() {
-                    Task(operation: { @MainActor in
-                        let context: ModelContext = ModelContainer.default.mainContext
-                        let record: Record = .init(container: queue)
-                        context.insert(record)
-                        context.insert(RecordGroup(host: queue.request.host, records: [record]))
-                        try? context.save()
-                    })
+                    /// ホストが含まれていればキャプチャする
+                    if options.map(\.host).contains(queue.request.host) {
+                        NSLog("[Capture] Request: \(queue.request)")
+                        Task(operation: { @MainActor in
+                            let context: ModelContext = ModelContainer.default.mainContext
+                            let record: Record = .init(container: queue)
+                            context.insert(record)
+                            context.insert(RecordGroup(host: queue.request.host, records: [record]))
+                            try? context.save()
+                        })
+                    }
+                    /// ホストの通知設定が有効かつ、通知を飛ばすパスなら通知を飛ばす
+                    if let option = options.first(where: { $0.host == queue.request.host }),
+                       option.notify,
+                       option.targets(keyPath: \.notify).contains(URL(string: queue.request.path)!.path)
+                    {
+                        NSLog("[Notify] Request: \(queue.request)")
+                        Task(operation: { @MainActor in
+                            let content: UNMutableNotificationContent = .init()
+                            content.title = NSLocalizedString("UNNOTIFICATION_REQUEST_TITLE", bundle: .module, comment: "")
+                            content.body = NSLocalizedString("UNNOTIFICATION_REQUEST_BODY", bundle: .module, comment: "")
+                            content.userInfo = [
+                                "headers": queue.request.header.base64EncodedString(),
+                                "body": queue.response.data?.base64EncodedString(),
+                                "path": queue.request.path,
+                            ]
+                            let triger: UNTimeIntervalNotificationTrigger = .init(timeInterval: 1, repeats: false)
+                            let request: UNNotificationRequest = .init(
+                                identifier: UUID().uuidString, content: content, trigger: triger,
+                            )
+                            try await UNUserNotificationCenter.current().add(request)
+                        })
+                    }
                 }
 
                 //                if let queue = self.queues.popFirst() {

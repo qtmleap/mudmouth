@@ -44,7 +44,7 @@ public enum MITM {
             return
         }
         guard let data: Data = options[NEVPNConnectionProxyTargets] as? Data,
-              let targets: [ProxyTarget] = try? decoder.decode([ProxyTarget].self, from: data)
+              let targets: [ProxyOption] = try? decoder.decode([ProxyOption].self, from: data)
         else {
             NSLog("No options provided or missing password data")
             SwiftyLogger.error("No options provided or missing password data")
@@ -63,7 +63,7 @@ public enum MITM {
                         NIOSSLServerHandler(context: keyPair.context),
                         ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)),
                         HTTPResponseEncoder(),
-                        ProxyHandler(targets: targets),
+                        ProxyHandler(options: targets),
                     ], position: .last,
                 )
             }

@@ -55,26 +55,22 @@ public final class Mudmouth {
     private let notificationCenter: UNUserNotificationCenter = .current()
     private var timer: Timer?
     private var status: NEVPNStatus = .invalid
-    /// パケットをキャプチャするドメインまとめ
-    private let targets: [ProxyTarget] = [
-        //        URL(string: "https://api-lp1.znc.srv.nintendo.net/v4/Game/GetWebServiceToken")!, // Nintendo (暗号化されているので現在は取得不可)
-        URL(string: "https://api.accounts.nintendo.com/2.0.0/users/me")!, // Nintendo
-//        URL(string: "https://api.lp1.usagi.srv.nintendo.net/api/primer_tokens")!, // Splatoon 3
-        URL(string: "https://api.lp1.av5ja.srv.nintendo.net/api/bullet_tokens")!, // Splatoon 3
-        URL(string: "https://api.lp1.87abc152.srv.nintendo.net/auth")!, // Zelda Notes
-        URL(string: "https://accounts.nintendo.com/connect/1.0.0/api/token")!, // Nintendo
-        URL(string: "https://app.splatoon2.nintendo.net/")!, // Splatoon 2
-        URL(string: "https://app.smashbros.nintendo.net/")!, // Smash World
-        URL(string: "https://web.sd.lp1.acbaa.srv.nintendo.net/")!, // NookLink
-    ].map { .init(url: $0) }
 
-    /// 起動時にVPNを有効化するかどうか
-//    @AppStorage("ACTIVATE_ON_LAUNCH", store: .standard)
-//    var activateOnLaunch: Bool = false
-
-    @ObservationIgnored
-    @AppStorage("ACTIVATE_ON_FOREGROUND", store: .standard)
-    public var activateOnForeground: Bool = true
+    private var options: [ProxyOption] = [
+        .init(host: "api.accounts.nintendo.com", paths: []),
+        .init(host: "api-lp1.znc.srv.nintendo.net", paths: []),
+        .init(host: "api.lp1.usagi.srv.nintendo.net", paths: []),
+        .init(host: "api.lp1.av5ja.srv.nintendo.net", paths: [
+            .init(path: "/api/bullet_tokens"),
+        ]),
+        .init(host: "api.lp1.87abc152.srv.nintendo.net", paths: []),
+        .init(host: "accounts.nintendo.com", paths: []),
+        .init(host: "app.splatoon2.nintendo.net", paths: [
+            .init(path: "/"),
+        ]),
+        .init(host: "app.smashbros.nintendo.net", paths: []),
+        .init(host: "web.sd.lp1.acbaa.srv.nintendo.net", paths: []),
+    ]
 
     /// Nintendo Switch Appがインストールされているかどうか
     /// NOTE: 一度アプリがバックグラウンドになるので、フォアグラウンドになったときにチェックすれば良い
@@ -113,10 +109,6 @@ public final class Mudmouth {
     private(set) var isTrusted: Bool = false {
         willSet {
             SwiftyLogger.debug("Interceptor: isTrusted changed from \(isTrusted) to \(newValue)")
-            // Trueになったら一旦タイマーを止める
-//            if newValue {
-//                stopTimer()
-//            }
         }
     }
 
@@ -151,7 +143,7 @@ public final class Mudmouth {
     /// ユーザーに通知の許可をリクエストする
     /// 拒否されている場合には設定を開く
     public func requestAuthorization(options: [UNNotificationPresentationOptions] = []) async throws {
-        let settings = try await UNUserNotificationCenter.current().notificationSettings()
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
         if settings.authorizationStatus == .authorized {
             return
         }
@@ -162,8 +154,13 @@ public final class Mudmouth {
         await UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
     }
 
+    /// デフォルト設定でVPNトンネルを開始する
+    func startVPNTunnel() async throws {
+        try await startVPNTunnel(options: options)
+    }
+
     /// VPNトンネルを開始する
-    public func startVPNTunnel() async throws {
+    public func startVPNTunnel(options: [ProxyOption]) async throws {
         SwiftyLogger.debug("Interceptor: Starting VPN Tunnel")
         // 一応マネージャーがあるかをチェックする
         guard let manager = try await NETunnelProviderManager.loadAllFromPreferences().first
@@ -171,9 +168,8 @@ public final class Mudmouth {
             SwiftyLogger.error("Interceptor: No VPN manager found")
             return
         }
-        SwiftyLogger.debug("Interceptor: Targets \(targets)")
-        // 今は実際にはここはほぼ利用していない
-        let keyPair: KeyPair = generateSiteKeyPair(hosts: targets.hosts)
+        // キャプチャするドメインを指定して鍵を生成する
+        let keyPair: KeyPair = generateSiteKeyPair(hosts: options.targets(keyPath: \.capture))
         // VPN設定を有効化する
         manager.isEnabled = true
         // 何をしているのかはよくわからない
@@ -185,7 +181,7 @@ public final class Mudmouth {
         // ついでにターゲット情報も渡す
         // ターゲットに合致したときにキャプチャしたパケットを渡す仕組み
         try manager.connection.startVPNTunnel(options: [
-            NEVPNConnectionProxyTargets: targets.data as NSObject,
+            NEVPNConnectionProxyTargets: options.data as NSObject,
             NEVPNConnectionStartOptionPassword: keyPair.data as NSObject,
         ])
         generator.notificationOccurred(.success)
@@ -238,7 +234,7 @@ public final class Mudmouth {
         return .init(certificate: certificate, privateKey: caCertificateKey)
     }
 
-    private init() {
+    public init() {
         #if DEBUG || targetEnvironment(simulator)
         SwiftyLogger.debug("Mudmouth: Initializing in DEBUG mode")
         #else
@@ -286,7 +282,6 @@ public final class Mudmouth {
     @objc
     private func didEnterBackgroundNotification() {
         SwiftyLogger.debug("Interceptor: DidEnterBackgroundNotification")
-//        stopTimer()
     }
 
     /// 起動時にも呼ばれる
@@ -303,30 +298,7 @@ public final class Mudmouth {
             /// NOTE: VPN設定が有効かどうかのチェックはwillSetで実行するのでgetVPNInstalledは不要
             self.manager = try await NETunnelProviderManager.loadAllFromPreferences().first
         })
-        /// 少し時間をおいてから実行しないとfalseになる
-        /// NOTE: そもそも一回チェックしてもFalseになると無限にFalseになる
-        /// NOTE: 根本的な解決方法を模索したい
-//        startTimer()
-        if activateOnForeground {
-            Task(priority: .background, operation: {
-                try await self.startVPNTunnel()
-            })
-        }
     }
-
-//    private func startTimer() {
-//        guard timer == nil else { return }
-//        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { _ in
-//            Task(priority: .background, operation: { @MainActor in
-//                self.isTrusted = self.getTrusted()
-//            })
-//        })
-//    }
-//
-//    private func stopTimer() {
-//        timer?.invalidate()
-//        timer = nil
-//    }
 }
 
 extension Mudmouth {
@@ -387,12 +359,6 @@ extension Mudmouth {
         let settings: UNNotificationSettings = try await UNUserNotificationCenter.current().notificationSettings()
         return settings.authorizationStatus == .authorized
     }
-
-//    private func getVPNInstalled() -> Bool {
-//        SwiftyLogger.debug("Checking if VPN is installed")
-//        SwiftyLogger.debug("Interceptor: VPN Manager is \(String(describing: manager))")
-//        return self.manager != nil
-//    }
 
     private func getConnected() -> Bool {
         manager?.connection.status == .connected
