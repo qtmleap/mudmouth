@@ -3,6 +3,12 @@
   "strings" : {
     "ACTION_CANCEL" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -13,6 +19,12 @@
     },
     "ACTION_REVOKE_CERTIFICATE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -23,6 +35,12 @@
     },
     "ALGORITHM" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Algorithm"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -33,6 +51,12 @@
     },
     "BUTTON_ACTIVATE_VPN" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable VPN"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -43,6 +67,12 @@
     },
     "BUTTON_ALLOW_NOTIFICATION" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Notifications"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -53,6 +83,12 @@
     },
     "BUTTON_DOWNLOAD_PROFILE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download Profile"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -63,6 +99,12 @@
     },
     "BUTTON_END" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -73,6 +115,12 @@
     },
     "BUTTON_INSTALL_VPN" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install VPN Configuration"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -83,6 +131,12 @@
     },
     "BUTTON_NEXT" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -93,6 +147,12 @@
     },
     "BUTTON_OPEN_APP" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open App"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -103,6 +163,12 @@
     },
     "BUTTON_OPEN_APP_STORE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install App"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -113,6 +179,12 @@
     },
     "BUTTON_OPEN_VPN_SETTINGS" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open VPN Settings"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -123,6 +195,12 @@
     },
     "BUTTON_TRUST_CERTIFICATE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Certificate Settings"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -133,6 +211,12 @@
     },
     "CERTIFICATE_INSTALLED" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -143,6 +227,12 @@
     },
     "CERTIFICATE_SHA256_HASH" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256 Hash"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -153,6 +243,12 @@
     },
     "CERTIFICATE_TRUSTED" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trusted"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -163,6 +259,12 @@
     },
     "CERTIFICATE_VERIFIED" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verified"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -173,6 +275,12 @@
     },
     "COMMON_NAME" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Common Name"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -184,6 +292,12 @@
     "CONTENTID_ACNH" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Animal Crossing: New Horizon"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -195,6 +309,12 @@
     "CONTENTID_SMSP" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Super Smash Bros. Special"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -206,6 +326,12 @@
     "CONTENTID_SP2" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Splatoon 2"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -217,6 +343,12 @@
     "CONTENTID_SP3" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Splatoon 3"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -227,6 +359,12 @@
     },
     "DESCRIPTION_ALLOW_NOTIFICATION" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This app sends notifications after capturing requests. If Do Not Disturb or Sleep is enabled, notifications may not be delivered."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -237,6 +375,12 @@
     },
     "DESCRIPTION_APP_NAME" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This app uses VPN functionality to analyze packets. Communications are protected with advanced encryption, and no captured data is collected."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -247,6 +391,12 @@
     },
     "DESCRIPTION_DOWNLOAD_VPN_PROFILE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download the profile to your device."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -257,6 +407,12 @@
     },
     "DESCRIPTION_INSTALL_NINTENDO_APP" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install the Nintendo Switch App to use this app."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -267,6 +423,12 @@
     },
     "DESCRIPTION_INSTALL_VPN" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install the VPN configuration profile to capture requests."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -277,6 +439,12 @@
     },
     "DESCRIPTION_INSTALL_VPN_PROFILE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install it manually via Settings > General > VPN & Device Management > Downloaded Profile."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -287,6 +455,12 @@
     },
     "DESCRIPTION_TEST_OPEN_APP" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the app and select a game."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -297,6 +471,12 @@
     },
     "DESCRIPTION_TEST_TOGGLE_VPN" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable the VPN configuration to capture requests."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -307,6 +487,12 @@
     },
     "DESCRIPTION_TRUST_CERTIFICATE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manually trust it via Settings > General > About > Certificate Trust Settings > Enable Full Trust for Root Certificates."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -317,6 +503,12 @@
     },
     "DIALOG_REGENERATE_CERTIFICATE_TITLE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reissuing the certificate will make already installed profiles unusable."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -328,6 +520,12 @@
     "FOOTER_CERT" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download, verify, and trust the certificate."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -338,6 +536,12 @@
     },
     "FOOTER_CERTIFICATE_VALIDATION" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You will not be able to capture requests correctly unless all items are enabled."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -348,6 +552,12 @@
     },
     "FOOTER_NSO" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Using Interceptor requires the Nintendo Switch App and an active Nintendo Switch Online membership."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -359,6 +569,12 @@
     "FOOTER_VPN" : {
       "extractionState" : "manual",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install the VPN configuration."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -369,6 +585,12 @@
     },
     "GENERATE_NEW_CERTIFICATE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generate New Certificate"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -396,6 +618,12 @@
     },
     "HEADER_CERTIFICATE_UTILS" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certificate Tools"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -406,6 +634,12 @@
     },
     "HEADER_CERTIFICATE_VALIDATION" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certificate Validation"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -416,6 +650,12 @@
     },
     "HEADER_GENERAL" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "General"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -426,6 +666,12 @@
     },
     "HEADER_KEY_INFORMATION" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Key Information"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -469,6 +715,12 @@
     },
     "LABEL_CERTIFICATE_INFO" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certificate Information"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -479,6 +731,12 @@
     },
     "LABEL_CONNECTION_STATUS_VPN" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection Status"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -523,6 +781,12 @@
     },
     "LABEL_GAME_CONTENT_ID" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -533,6 +797,12 @@
     },
     "LABEL_INSTALL_NSO" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nintendo Switch Online"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -560,6 +830,12 @@
     },
     "LABEL_NOTIFICATION_VERIFIED" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -570,6 +846,12 @@
     },
     "LABEL_OPEN" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open App"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -580,6 +862,12 @@
     },
     "LABEL_OPEN_NSO" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Nintendo Switch Online"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -590,6 +878,12 @@
     },
     "LABEL_TOGGLE_VPN" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable VPN"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -634,6 +928,12 @@
     },
     "NOT_VALID_AFTER" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Valid After"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -644,6 +944,12 @@
     },
     "NOT_VALID_BEFORE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Valid Before"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -654,6 +960,12 @@
     },
     "ORGANIZATION" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Organization"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -664,6 +976,12 @@
     },
     "PRIVATE_KEY_DATA" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Private Key"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -674,6 +992,12 @@
     },
     "PUBLIC_KEY_DATA" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Public Key"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -684,6 +1008,12 @@
     },
     "TITLE_ALLOW_NOTIFICATION" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notification Settings"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -694,6 +1024,12 @@
     },
     "TITLE_APP_NAME" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About This App"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -704,6 +1040,12 @@
     },
     "TITLE_CERTIFICATE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certificate Information"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -714,6 +1056,12 @@
     },
     "TITLE_CONFIGURATION" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -724,6 +1072,12 @@
     },
     "TITLE_DOWNLOAD_VPN_PROFILE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VPN Configuration Profile"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -734,6 +1088,12 @@
     },
     "TITLE_INSTALL_NINTENDO_APP" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install App"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -744,6 +1104,12 @@
     },
     "TITLE_INSTALL_VPN" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install VPN Configuration"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -754,6 +1120,12 @@
     },
     "TITLE_INSTALL_VPN_PROFILE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install Profile"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -764,6 +1136,12 @@
     },
     "TITLE_TEST_OPEN_APP" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try It Out"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -774,6 +1152,12 @@
     },
     "TITLE_TEST_TOGGLE_VPN" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable VPN Configuration"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -784,6 +1168,12 @@
     },
     "TITLE_TRUST_CERTIFICATE" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trust Certificate"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -797,7 +1187,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "タップでアプリを開いて処理を実行します"
+            "value" : "Tap to open the app and execute the action."
           }
         },
         "ja" : {
@@ -813,13 +1203,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "レスポンスを取得しました"
+            "value" : "Response captured."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "レスポンスを取得しました"
+            "value" : "レスポンスを取得しました。"
           }
         }
       }
@@ -829,7 +1219,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "タップでアプリを開いて処理を実行します"
+            "value" : "Tap to open the app and execute the action."
           }
         },
         "ja" : {
@@ -845,13 +1235,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "レスポンスを取得しました"
+            "value" : "Response captured."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "レスポンスを取得しました"
+            "value" : "レスポンスを取得しました。"
           }
         }
       }
