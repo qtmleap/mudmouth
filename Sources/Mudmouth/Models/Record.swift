@@ -73,20 +73,8 @@ public final class Record: Identifiable {
         response.phrase
     }
 
-    /// リクエストのCookie
     public var cookies: HTTP.Parameters {
-        guard let cookie: String = request.headers.first(where: { $0.key == "Cookie" })?.value
-        else {
-            return .init([])
-        }
-        return .init(cookie
-            .split(separator: ";")
-            .compactMap { component in
-                let components: [String] = component.split(separator: "=", maxSplits: 1).map(String.init).map { $0.trimmingCharacters(in: .whitespaces) }
-                guard components.count == 2 else { return nil }
-                return .init(key: components[0], value: components[1])
-            }
-            .sorted(by: { $0.key < $1.key }))
+        request.cookies
     }
 }
 
@@ -94,7 +82,8 @@ public enum HTTP {
     public protocol Message {
         var header: Data { get }
         var data: Data? { get set }
-        var body: String? { get }
+        /// デコード済みのボディ
+        var body: Data? { get }
 
         var headers: HTTP.Parameters { get }
     }
@@ -155,6 +144,25 @@ public enum HTTP {
                 data?.append(contentsOf: buffer.data)
             }
         }
+
+        /// リクエストのCookie
+        public var cookies: HTTP.Parameters {
+            guard let cookie: String = headers.values.first(where: { $0.key.lowercased() == "cookie" })?.value
+            else {
+                return .init([])
+            }
+            return .init(cookie
+                .split(separator: ";")
+                .compactMap { component in
+                    let components: [String] = component.split(separator: "=", maxSplits: 1).map(String.init).map { $0.trimmingCharacters(in: .whitespaces) }
+                    return components.count == 2 ? .init(key: components[0], value: components[1]) : .init(key: components[0], value: "true")
+                }
+                .reduce(into: [String: HTTP.Parameter]()) { result, cookie in
+                    result[cookie.key] = cookie
+                }
+                .values
+                .sorted(by: { $0.key < $1.key }))
+        }
     }
 
     @Model
@@ -184,7 +192,7 @@ public enum HTTP {
 
         /// レスポンスのCookie
         public var cookies: HTTP.Parameters {
-            guard let cookie: String = headers.first(where: { $0.key == "Set-Cookie" })?.value
+            guard let cookie: String = headers.values.first(where: { $0.key.lowercased() == "set-cookie" })?.value
             else {
                 return .init([])
             }
@@ -213,32 +221,19 @@ public extension HTTP.Message {
     }
 
     var encoding: String? {
-        guard let value = headers.first(where: { $0.key.lowercased() == "content-encoding" })?.value
+        guard let value = headers.values.first(where: { $0.key.lowercased() == "content-encoding" })?.value
         else {
             return nil
         }
         return value.lowercased()
     }
 
-    var body: String? {
-        guard let data else { return nil }
-        if encoding == "gzip" {
-            guard let data = try? data.gunzipped() else {
-                return nil
-            }
-            guard let object = try? JSONSerialization.jsonObject(with: data),
-                  let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .withoutEscapingSlashes, .sortedKeys, .fragmentsAllowed])
-            else {
-                return nil
-            }
-            return String(data: data, encoding: .utf8)
-        }
-        guard let object = try? JSONSerialization.jsonObject(with: data),
-              let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .withoutEscapingSlashes, .sortedKeys, .fragmentsAllowed])
+    var body: Data? {
+        guard let data: Data = data
         else {
             return nil
         }
-        return String(data: data, encoding: .utf8)
+        return encoding == "gzip" ? try? data.gunzipped() : data
     }
 }
 

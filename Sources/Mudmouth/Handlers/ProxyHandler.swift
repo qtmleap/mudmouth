@@ -121,8 +121,8 @@ final class ProxyHandler: NotificationHandler, ChannelDuplexHandler {
                             content.body = NSLocalizedString("UNNOTIFICATION_REQUEST_BODY", bundle: .module, comment: "")
                             // リクエストのヘッダーとレスポンスのボディと取得したパスを送る
                             content.userInfo = [
-                                "headers": queue.request.header.base64EncodedString(),
-                                "body": queue.response.body?.data(using: .utf8)?.base64EncodedString(),
+                                "headers": queue.request.header.base64EncodedString(), // JSON形式に変換したい感がある
+                                "body": queue.response.body?.base64EncodedString(), // JSON形式で入ってくる(普通は)
                                 "path": queue.request.path,
                             ]
                             let triger: UNTimeIntervalNotificationTrigger = .init(timeInterval: 1, repeats: false)
