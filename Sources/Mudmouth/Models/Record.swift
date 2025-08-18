@@ -235,6 +235,16 @@ public extension HTTP.Message {
         }
         return encoding == "gzip" ? try? data.gunzipped() : data
     }
+
+    var json: String? {
+        guard let data: Data = body,
+              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let data: Data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])
+        else {
+            return nil
+        }
+        return String(data: data, encoding: .utf8)
+    }
 }
 
 public struct HTTPHeader: Identifiable, Hashable {
