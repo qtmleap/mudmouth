@@ -8,48 +8,25 @@
 
 import Foundation
 import SwiftUI
-import SwiftyLogger
 
-@propertyWrapper
-public struct CodableStorage<Value: Codable>: DynamicProperty {
-    @AppStorage
-    private var value: Data
-    private var key: String
-
-    private let decoder: JSONDecoder = .init()
-    private let encoder: JSONEncoder = .init()
-
-    public init(wrappedValue: Value, _ key: String, store: UserDefaults = .standard) {
-        guard let data: Data = try? encoder.encode(wrappedValue)
+extension Array: RawRepresentable where Element: Codable {
+    public init?(rawValue: String) {
+        let decoder: JSONDecoder = .init()
+        guard let data = rawValue.data(using: .utf8),
+              let value = try? decoder.decode([Element].self, from: data)
         else {
-            fatalError("Failed to encode initial value for CodableStorage")
+            return nil
         }
-//        UserDefaults.standard.set(data, forKey: key)
-        _value = .init(wrappedValue: data, key, store: store)
-        self.key = key
+        self = value
     }
 
-    public var wrappedValue: Value {
-        get {
-            try! decoder.decode(Value.self, from: value)
+    public var rawValue: String {
+        let encoder: JSONEncoder = .init()
+        guard let data = try? encoder.encode(self),
+              let result = String(data: data, encoding: .utf8)
+        else {
+            return "[]"
         }
-        nonmutating set {
-            value = try! encoder.encode(newValue)
-        }
-    }
-
-    public var projectedValue: Binding<Value> {
-        Binding<Value>(
-            get: {
-                wrappedValue
-            },
-            set: { newValue in
-                wrappedValue = newValue
-                if let data: Data = try? encoder.encode(newValue) {
-                    SwiftyLogger.debug("Storing \(key) in UserDefaults")
-                    UserDefaults.standard.set(data, forKey: key)
-                }
-            },
-        )
+        return result
     }
 }

@@ -51,18 +51,18 @@ public final class Record: Identifiable {
         self.response = response
     }
 
-    public var queries: [HTTP.Query] {
+    public var queries: HTTP.Parameters {
         guard let url: URL = .init(string: path),
               let components: URLComponents = .init(url: url, resolvingAgainstBaseURL: false),
               let queryItems: [URLQueryItem] = components.queryItems
         else {
-            return []
+            return .init([])
         }
-        return queryItems.compactMap { queryItem in
+        return .init(queryItems.compactMap { queryItem in
             guard let value: String = queryItem.value else { return nil }
-            return HTTP.Query(key: queryItem.name, value: value)
+            return HTTP.Parameter(key: queryItem.name, value: value)
         }
-        .sorted(by: { $0.key < $1.key })
+        .sorted(by: { $0.key < $1.key }))
     }
 
     public var code: UInt {
@@ -74,19 +74,19 @@ public final class Record: Identifiable {
     }
 
     /// リクエストのCookie
-    public var cookies: [HTTP.Cookie] {
+    public var cookies: HTTP.Parameters {
         guard let cookie: String = request.headers.first(where: { $0.key == "Cookie" })?.value
         else {
-            return []
+            return .init([])
         }
-        return cookie
+        return .init(cookie
             .split(separator: ";")
             .compactMap { component in
                 let components: [String] = component.split(separator: "=", maxSplits: 1).map(String.init).map { $0.trimmingCharacters(in: .whitespaces) }
                 guard components.count == 2 else { return nil }
                 return .init(key: components[0], value: components[1])
             }
-            .sorted(by: { $0.key < $1.key })
+            .sorted(by: { $0.key < $1.key }))
     }
 }
 
@@ -96,7 +96,7 @@ public enum HTTP {
         var data: Data? { get set }
         var body: String? { get }
 
-        var headers: [HTTP.Header] { get }
+        var headers: HTTP.Parameters { get }
     }
 
     struct MessageContainer: Sendable {
@@ -105,22 +105,24 @@ public enum HTTP {
         var response: HTTP.Response!
     }
 
-    public protocol KeyValuePair: Hashable {
-        var key: String { get }
-        var value: String { get }
+    @dynamicMemberLookup
+    public struct Parameters: Hashable, Codable {
+        public let values: [Parameter]
+
+        subscript(dynamicMember member: String) -> String? {
+            values.first(where: { $0.key == member })?.value
+        }
+
+        public var isEmpty: Bool {
+            values.isEmpty
+        }
+
+        init(_ values: [Parameter]) {
+            self.values = values
+        }
     }
 
-    public struct Header: KeyValuePair {
-        public let key: String
-        public let value: String
-    }
-
-    public struct Cookie: KeyValuePair {
-        public let key: String
-        public let value: String
-    }
-
-    public struct Query: KeyValuePair {
+    public struct Parameter: Hashable, Codable {
         public let key: String
         public let value: String
     }
@@ -181,33 +183,33 @@ public enum HTTP {
         }
 
         /// レスポンスのCookie
-        public var cookies: [HTTP.Cookie] {
+        public var cookies: HTTP.Parameters {
             guard let cookie: String = headers.first(where: { $0.key == "Set-Cookie" })?.value
             else {
-                return []
+                return .init([])
             }
-            return cookie
+            return .init(cookie
                 .split(separator: ";")
                 .compactMap { component in
                     let components: [String] = component.split(separator: "=", maxSplits: 1).map(String.init).map { $0.trimmingCharacters(in: .whitespaces) }
                     return components.count == 2 ? .init(key: components[0], value: components[1]) : .init(key: components[0], value: "true")
                 }
-                .reduce(into: [String: HTTP.Cookie]()) { result, cookie in
+                .reduce(into: [String: HTTP.Parameter]()) { result, cookie in
                     result[cookie.key] = cookie
                 }
                 .values
-                .sorted(by: { $0.key < $1.key })
+                .sorted(by: { $0.key < $1.key }))
         }
     }
 }
 
 public extension HTTP.Message {
-    var headers: [HTTP.Header] {
+    var headers: HTTP.Parameters {
         guard let headers = try? JSONSerialization.jsonObject(with: header) as? [String: String]
         else {
-            return []
+            return .init([])
         }
-        return headers.map { .init(key: $0.key, value: $0.value) }.sorted(by: { $0.key < $1.key })
+        return .init(headers.map { .init(key: $0.key, value: $0.value) }.sorted(by: { $0.key < $1.key }))
     }
 
     var encoding: String? {

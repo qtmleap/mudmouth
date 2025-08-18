@@ -25,8 +25,7 @@ public struct ProxyTarget: Codable {
     }
 }
 
-@Observable
-public final class ProxyOption: Codable, Identifiable {
+public struct ProxyOption: Codable, Identifiable {
     public var id: String { host }
     /// ホスト
     public var host: String
@@ -65,6 +64,24 @@ public struct ProxyPath: Codable, Identifiable {
         self.path = path
         self.capture = capture
         self.notify = notify
+    }
+}
+
+/// REF: AppStorageにCodableを保存する時に気を付けたいパフォーマンスの話
+/// NOTE: https://zenn.dev/noppe/articles/31a61bd3d17891
+/// 比較時にイニシャライザが走らないようにするための処理
+extension ProxyOption: Equatable {
+    public static func == (lhs: ProxyOption, rhs: ProxyOption) -> Bool {
+        lhs.host == rhs.host
+    }
+}
+
+/// REF: AppStorageにCodableを保存する時に気を付けたいパフォーマンスの話
+/// NOTE: https://zenn.dev/noppe/articles/31a61bd3d17891
+/// 比較時にイニシャライザが走らないようにするための処理
+extension ProxyPath: Equatable {
+    public static func == (lhs: ProxyPath, rhs: ProxyPath) -> Bool {
+        lhs.path == rhs.path
     }
 }
 

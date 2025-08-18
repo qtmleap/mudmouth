@@ -111,6 +111,7 @@ final class ProxyHandler: NotificationHandler, ChannelDuplexHandler {
                     /// ホストの通知設定が有効かつ、通知を飛ばすパスなら通知を飛ばす
                     if let option = options.first(where: { $0.host == queue.request.host }),
                        option.notify,
+                       // クエリパラメータを除いたパスを取得する
                        option.targets(keyPath: \.notify).contains(URL(string: queue.request.path)!.path)
                     {
                         NSLog("[Notify] Request: \(queue.request)")
@@ -118,9 +119,10 @@ final class ProxyHandler: NotificationHandler, ChannelDuplexHandler {
                             let content: UNMutableNotificationContent = .init()
                             content.title = NSLocalizedString("UNNOTIFICATION_REQUEST_TITLE", bundle: .module, comment: "")
                             content.body = NSLocalizedString("UNNOTIFICATION_REQUEST_BODY", bundle: .module, comment: "")
+                            // リクエストのヘッダーとレスポンスのボディと取得したパスを送る
                             content.userInfo = [
                                 "headers": queue.request.header.base64EncodedString(),
-                                "body": queue.response.data?.base64EncodedString(),
+                                "body": queue.response.body?.data(using: .utf8)?.base64EncodedString(),
                                 "path": queue.request.path,
                             ]
                             let triger: UNTimeIntervalNotificationTrigger = .init(timeInterval: 1, repeats: false)
