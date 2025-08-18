@@ -50,6 +50,44 @@ public final class Record: Identifiable {
         self.request = request
         self.response = response
     }
+
+    public var queries: [HTTP.Query] {
+        guard let url: URL = .init(string: path),
+              let components: URLComponents = .init(url: url, resolvingAgainstBaseURL: false),
+              let queryItems: [URLQueryItem] = components.queryItems
+        else {
+            return []
+        }
+        return queryItems.compactMap { queryItem in
+            guard let value: String = queryItem.value else { return nil }
+            return HTTP.Query(key: queryItem.name, value: value)
+        }
+        .sorted(by: { $0.key < $1.key })
+    }
+
+    public var code: UInt {
+        response.code
+    }
+
+    public var phrase: String {
+        response.phrase
+    }
+
+    /// リクエストのCookie
+    public var cookies: [HTTP.Cookie] {
+        guard let cookie: String = request.headers.first(where: { $0.key == "Cookie" })?.value
+        else {
+            return []
+        }
+        return cookie
+            .split(separator: ";")
+            .compactMap { component in
+                let components: [String] = component.split(separator: "=", maxSplits: 1).map(String.init).map { $0.trimmingCharacters(in: .whitespaces) }
+                guard components.count == 2 else { return nil }
+                return .init(key: components[0], value: components[1])
+            }
+            .sorted(by: { $0.key < $1.key })
+    }
 }
 
 public enum HTTP {
@@ -67,7 +105,22 @@ public enum HTTP {
         var response: HTTP.Response!
     }
 
-    public struct Header: Hashable {
+    public protocol KeyValuePair: Hashable {
+        var key: String { get }
+        var value: String { get }
+    }
+
+    public struct Header: KeyValuePair {
+        public let key: String
+        public let value: String
+    }
+
+    public struct Cookie: KeyValuePair {
+        public let key: String
+        public let value: String
+    }
+
+    public struct Query: KeyValuePair {
         public let key: String
         public let value: String
     }
@@ -76,6 +129,7 @@ public enum HTTP {
     public class Request: HTTP.Message, @unchecked Sendable {
         @Attribute(.unique)
         public var id: UUID
+        public var version: String
         public var host: String
         public var path: String
         public var header: Data
@@ -84,6 +138,7 @@ public enum HTTP {
 
         init(head: HTTPRequestHead) {
             id = .init()
+            version = head.version.description
             host = head.host!
             path = head.uri
             method = head.method.rawValue
@@ -106,9 +161,13 @@ public enum HTTP {
         public var id: UUID
         public var header: Data
         public var data: Data?
+        public var code: UInt
+        public var phrase: String
 
         init(head: HTTPResponseHead) {
             id = .init()
+            code = head.status.code
+            phrase = head.status.reasonPhrase
             header = head.headers.data
             data = nil
         }
@@ -119,6 +178,25 @@ public enum HTTP {
             } else {
                 data?.append(contentsOf: buffer.data)
             }
+        }
+
+        /// レスポンスのCookie
+        public var cookies: [HTTP.Cookie] {
+            guard let cookie: String = headers.first(where: { $0.key == "Set-Cookie" })?.value
+            else {
+                return []
+            }
+            return cookie
+                .split(separator: ";")
+                .compactMap { component in
+                    let components: [String] = component.split(separator: "=", maxSplits: 1).map(String.init).map { $0.trimmingCharacters(in: .whitespaces) }
+                    return components.count == 2 ? .init(key: components[0], value: components[1]) : .init(key: components[0], value: "true")
+                }
+                .reduce(into: [String: HTTP.Cookie]()) { result, cookie in
+                    result[cookie.key] = cookie
+                }
+                .values
+                .sorted(by: { $0.key < $1.key })
         }
     }
 }
@@ -147,14 +225,14 @@ public extension HTTP.Message {
                 return nil
             }
             guard let object = try? JSONSerialization.jsonObject(with: data),
-                  let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted])
+                  let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .withoutEscapingSlashes, .sortedKeys, .fragmentsAllowed])
             else {
                 return nil
             }
             return String(data: data, encoding: .utf8)
         }
         guard let object = try? JSONSerialization.jsonObject(with: data),
-              let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted])
+              let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .withoutEscapingSlashes, .sortedKeys, .fragmentsAllowed])
         else {
             return nil
         }
@@ -170,7 +248,7 @@ public struct HTTPHeader: Identifiable, Hashable {
 
 extension HTTPHeaders {
     var dictionary: [String: String] {
-        Dictionary(map { ($0.name, $0.value) }, uniquingKeysWith: +)
+        Dictionary(map { ($0.name, $0.value) }, uniquingKeysWith: { "\($0); \($1)" })
     }
 
     var data: Data {
