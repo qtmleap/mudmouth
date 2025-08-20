@@ -15,8 +15,46 @@ public struct FirstLaunchView: View {
     @Environment(\.dismiss) var dismiss
     @State private var selection: Int = 0
     @State private var isPresented: Bool = false
-    @State private var isDialogPresented: Bool = false
     private let proxy: X509Proxy = .default
+
+    struct ConfirmationDialog<A: View, M: View, L: View>: View {
+        @State private var isPresented: Bool = false
+        let role: ButtonRole?
+        let label: () -> L
+        let title: Text
+        let titleVisibility: Visibility
+        let actions: () -> A
+        let message: () -> M
+
+        init(
+            role: ButtonRole? = nil,
+            @ViewBuilder label: @escaping () -> L,
+            title: Text,
+            titleVisibility: Visibility = .automatic,
+            @ViewBuilder actions: @escaping () -> A,
+            @ViewBuilder message: @escaping () -> M = { EmptyView() },
+        ) {
+            self.role = role
+            self.label = label
+            self.title = title
+            self.titleVisibility = titleVisibility
+            self.message = message
+            self.actions = actions
+        }
+
+        var body: some View {
+            Button(role: role, action: {
+                isPresented.toggle()
+            }, label: {
+                label()
+            })
+            .confirmationDialog(title, isPresented: $isPresented, titleVisibility: .visible, actions: {
+                actions()
+            }, message: {
+                message()
+            })
+        }
+    }
 
     var isEnabled: Bool {
         #if targetEnvironment(simulator)
@@ -197,27 +235,28 @@ public struct FirstLaunchView: View {
                                 .fontWeight(.bold)
                                 .frame(width: 300, height: 40)
                         })
-                        Button(role: .destructive, action: {
-                            isDialogPresented.toggle()
-                        }, label: {
-                            Text("BUTTON_SKIP_INSTALL_APP", bundle: .module)
-                                .fontWeight(.bold)
-                                .frame(width: 300, height: 40)
-                        })
-                        .confirmationDialog(Text("DIALOG_SKIP_INSTALL", bundle: .module), isPresented: $isDialogPresented, titleVisibility: .visible, actions: {
-                            Button(role: .destructive, action: {
-                                withAnimation(.spring) {
-                                    selection += 1
-                                }
-                            }, label: {
-                                Text("BUTTON_SKIP_INSTALL_LATER", bundle: .module)
-                            })
-                            Button(action: {}, label: {
-                                Text("BUTTON_SKIP_INSTALL_CANCEL", bundle: .module)
-                            })
-                        }, message: {
-                            Text("DIALOG_SKIP_INSTALL_DESC", bundle: .module)
-                        })
+                        ConfirmationDialog(
+                            role: .destructive,
+                            label: {
+                                Text("BUTTON_SKIP_LATER", bundle: .module)
+                                    .fontWeight(.bold)
+                                    .frame(width: 300, height: 40)
+                            },
+                            title: Text("TITLE_SKIP_LATER", bundle: .module),
+                            titleVisibility: .visible,
+                            actions: {
+                                Button(role: .destructive, action: {
+                                    withAnimation(.spring) {
+                                        selection += 1
+                                    }
+                                }, label: {
+                                    Text("BUTTON_SKIP_LATER", bundle: .module)
+                                })
+                            },
+                            message: {
+                                Text("DIALOG_SKIP_INSTALL_DESC", bundle: .module)
+                            },
+                        )
                     case 2:
                         Button(action: {
                             Task(priority: .background, operation: {
@@ -233,6 +272,28 @@ public struct FirstLaunchView: View {
                                 .fontWeight(.bold)
                                 .frame(width: 300, height: 40)
                         })
+                        ConfirmationDialog(
+                            role: .destructive,
+                            label: {
+                                Text("BUTTON_SKIP_LATER", bundle: .module)
+                                    .fontWeight(.bold)
+                                    .frame(width: 300, height: 40)
+                            },
+                            title: Text("TITLE_SKIP_LATER", bundle: .module),
+                            titleVisibility: .visible,
+                            actions: {
+                                Button(role: .destructive, action: {
+                                    withAnimation(.spring) {
+                                        selection += 1
+                                    }
+                                }, label: {
+                                    Text("BUTTON_SKIP_LATER", bundle: .module)
+                                })
+                            },
+                            message: {
+                                Text("DIALOG_SKIP_ALLOW_NOTIFICATION_DESC", bundle: .module)
+                            },
+                        )
                     case 3:
                         Button(action: {
                             isPresented.toggle()

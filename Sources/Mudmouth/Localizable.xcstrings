@@ -193,49 +193,17 @@
         }
       }
     },
-    "BUTTON_SKIP_INSTALL_APP" : {
+    "BUTTON_SKIP_LATER" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Skip"
+            "value" : "Skip for Now"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "スキップする"
-          }
-        }
-      }
-    },
-    "BUTTON_SKIP_INSTALL_CANCEL" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancel"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "キャンセル"
-          }
-        }
-      }
-    },
-    "BUTTON_SKIP_INSTALL_LATER" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skip"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "スキップする"
           }
         }
@@ -492,23 +460,23 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "証明書を再発行すると既にインストール済みのプロファイルは利用できなくなります"
+            "value" : "証明書を再発行すると既にインストール済みのプロファイルは利用できなくなります。"
           }
         }
       }
     },
-    "DIALOG_SKIP_INSTALL" : {
+    "DIALOG_SKIP_ALLOW_NOTIFICATION_DESC" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Skip installation?"
+            "value" : "Enabling notifications makes the app more convenient to use."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "インストールをスキップしますか"
+            "state" : "needs_review",
+            "value" : "通知機能を有効化すると、アプリをより便利にご利用いただけます。"
           }
         }
       }
@@ -541,7 +509,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "証明書をダウンロードして検証し、信頼してください"
+            "value" : "証明書をダウンロードして検証し、信頼してください。"
           }
         }
       }
@@ -573,7 +541,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Interceptorの利用にはNintendo Switch Appのインストール及び、Nintendo Switch Onlineの契約が必要です"
+            "value" : "Interceptorの利用にはNintendo Switch Appのインストール及び、Nintendo Switch Onlineの契約が必要です。"
           }
         }
       }
@@ -590,7 +558,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "VPN構成をインストールしてください"
+            "value" : "VPN構成をインストールしてください。"
           }
         }
       }
@@ -1142,6 +1110,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "プロファイルのインストール"
+          }
+        }
+      }
+    },
+    "TITLE_SKIP_LATER" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip for now?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本当にスキップしますか？"
           }
         }
       }
