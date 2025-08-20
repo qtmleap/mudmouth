@@ -193,6 +193,54 @@
         }
       }
     },
+    "BUTTON_SKIP_INSTALL_APP" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スキップする"
+          }
+        }
+      }
+    },
+    "BUTTON_SKIP_INSTALL_CANCEL" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャンセル"
+          }
+        }
+      }
+    },
+    "BUTTON_SKIP_INSTALL_LATER" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スキップする"
+          }
+        }
+      }
+    },
     "BUTTON_TRUST_CERTIFICATE" : {
       "localizations" : {
         "en" : {
@@ -285,74 +333,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "一般名"
-          }
-        }
-      }
-    },
-    "CONTENTID_ACNH" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Animal Crossing: New Horizon"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "あつまれ どうぶつの森"
-          }
-        }
-      }
-    },
-    "CONTENTID_SMSP" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Super Smash Bros. Special"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "大乱闘スマッシュブラザーズ SPECIAL"
-          }
-        }
-      }
-    },
-    "CONTENTID_SP2" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Splatoon 2"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "スプラトゥーン2"
-          }
-        }
-      }
-    },
-    "CONTENTID_SP3" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Splatoon 3"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "スプラトゥーン3"
           }
         }
       }
@@ -513,6 +493,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "証明書を再発行すると既にインストール済みのプロファイルは利用できなくなります"
+          }
+        }
+      }
+    },
+    "DIALOG_SKIP_INSTALL" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip installation?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "インストールをスキップしますか"
+          }
+        }
+      }
+    },
+    "DIALOG_SKIP_INSTALL_DESC" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skipping installation will limit some features of this app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "インストールをスキップすると本アプリの機能の一部が制限されます。"
           }
         }
       }

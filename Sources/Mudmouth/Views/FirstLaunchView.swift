@@ -15,6 +15,7 @@ public struct FirstLaunchView: View {
     @Environment(\.dismiss) var dismiss
     @State private var selection: Int = 0
     @State private var isPresented: Bool = false
+    @State private var isDialogPresented: Bool = false
     private let proxy: X509Proxy = .default
 
     var isEnabled: Bool {
@@ -196,10 +197,36 @@ public struct FirstLaunchView: View {
                                 .fontWeight(.bold)
                                 .frame(width: 300, height: 40)
                         })
+                        Button(role: .destructive, action: {
+                            isDialogPresented.toggle()
+                        }, label: {
+                            Text("BUTTON_SKIP_INSTALL_APP", bundle: .module)
+                                .fontWeight(.bold)
+                                .frame(width: 300, height: 40)
+                        })
+                        .confirmationDialog(Text("DIALOG_SKIP_INSTALL", bundle: .module), isPresented: $isDialogPresented, titleVisibility: .visible, actions: {
+                            Button(role: .destructive, action: {
+                                withAnimation(.spring) {
+                                    selection += 1
+                                }
+                            }, label: {
+                                Text("BUTTON_SKIP_INSTALL_LATER", bundle: .module)
+                            })
+                            Button(action: {}, label: {
+                                Text("BUTTON_SKIP_INSTALL_CANCEL", bundle: .module)
+                            })
+                        }, message: {
+                            Text("DIALOG_SKIP_INSTALL_DESC", bundle: .module)
+                        })
                     case 2:
                         Button(action: {
                             Task(priority: .background, operation: {
-                                try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert])
+                                let granted: Bool = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert])
+                                if granted {
+                                    DispatchQueue.main.async {
+                                        UIApplication.shared.registerForRemoteNotifications()
+                                    }
+                                }
                             })
                         }, label: {
                             Text("BUTTON_ALLOW_NOTIFICATION", bundle: .module)
